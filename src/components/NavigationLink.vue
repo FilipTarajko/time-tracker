@@ -24,14 +24,14 @@ defineOptions({
   name: 'EssentialLink'
 });
 
-export interface EssentialLinkProps {
+export interface NavigationLinkProps {
   title: string;
   caption?: string;
   link?: string;
   icon?: string;
 };
 
-withDefaults(defineProps<EssentialLinkProps>(), {
+withDefaults(defineProps<NavigationLinkProps>(), {
   caption: '',
   link: '#',
   icon: '',
