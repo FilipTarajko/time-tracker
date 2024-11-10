@@ -9,7 +9,19 @@
     fill-input
     @filter="filterTasksByName"
     outlined
-  ></q-select>
+  >
+    <template v-slot:option="scope">
+      <q-item v-bind="scope.itemProps">
+<!--        <q-item-section avatar>-->
+<!--          <q-icon :name="scope.opt.icon" />-->
+<!--        </q-item-section>-->
+        <q-item-section>
+          <q-item-label>{{ scope.opt.name }}</q-item-label>
+          <q-item-label v-if="scope.opt.parentTaskId" caption>{{ generateLabel(scope.opt) }}</q-item-label>
+        </q-item-section>
+      </q-item>
+    </template>
+  </q-select>
   <!--  TODO: https://quasar.dev/vue-components/select#customizing-menu-options -->
 </template>
 
@@ -45,12 +57,14 @@ interface Task {
   id: number;
   name: string;
   parentTaskId?: number;
+  // icon?: string;
 }
 
 const tasks: Task[] = reactive([
   {
     id: 1,
     name: 'IT',
+    // icon: 'map',
   },
   {
     id: 2,
