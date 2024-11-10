@@ -1,5 +1,5 @@
 <template>
-  Current: {{ currentTimer.name }}
+  Current: {{ currentTimer?.name }}
   <q-select
     v-model="currentTimer"
     :options="filteredTasks"
@@ -13,7 +13,7 @@
     <template v-slot:prepend>
         <img
           style="width: 36px;"
-          v-if="currentTimer.imageSrc"
+          v-if="currentTimer?.imageSrc"
           :alt="currentTimer.name + ' category icon'"
           :src="currentTimer.imageSrc"
         />
@@ -43,7 +43,7 @@
 <script setup lang="ts">
 import { reactive, Ref, ref } from 'vue';
 
-const currentTimer = ref('');
+const currentTimer = ref<Task | null>(null);
 
 function generateLabel(originalTask: Task): string {
   let currentTask = originalTask;

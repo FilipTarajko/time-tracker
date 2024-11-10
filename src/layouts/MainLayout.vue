@@ -52,8 +52,6 @@
 
 <script setup lang="ts">
 import { productName } from '../../package.json';
-import { ref } from 'vue';
-import { NavigationLinkProps } from 'components/NavigationLink.vue';
 
 defineOptions({
   name: 'MainLayout'
@@ -68,7 +66,7 @@ defineOptions({
 //   },
 // ];
 
-const leftDrawerOpen = ref(false);
+// const leftDrawerOpen = ref(false);
 
 // function toggleLeftDrawer () {
 //   leftDrawerOpen.value = !leftDrawerOpen.value;
