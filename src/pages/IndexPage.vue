@@ -12,9 +12,10 @@
   >
     <template v-slot:option="scope">
       <q-item v-bind="scope.itemProps">
-<!--        <q-item-section avatar>-->
-<!--          <q-icon :name="scope.opt.icon" />-->
-<!--        </q-item-section>-->
+        <q-item-section avatar>
+          <img v-if="scope.opt.imageSrc" :alt="scope.opt.name + ' category icon'" :src="scope.opt.imageSrc" />
+          <!--          <q-icon :name="scope.opt.icon" />-->
+        </q-item-section>
         <q-item-section>
           <q-item-label>{{ scope.opt.name }}</q-item-label>
           <q-item-label v-if="scope.opt.parentTaskId" caption>{{ generateLabel(scope.opt) }}</q-item-label>
@@ -57,7 +58,7 @@ interface Task {
   id: number;
   name: string;
   parentTaskId?: number;
-  // icon?: string;
+  imageSrc?: string;
 }
 
 const tasks: Task[] = reactive([
@@ -70,26 +71,32 @@ const tasks: Task[] = reactive([
     id: 2,
     name: 'JavaScript',
     parentTaskId: 1,
+    imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg'
   },
   {
     id: 3,
     name: 'CSS',
     parentTaskId: 1,
+    imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg',
   },
   {
     id: 4,
     name: 'Vue',
     parentTaskId: 2,
+    imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg',
   },
   {
     id: 5,
     name: 'Quasar',
     parentTaskId: 4,
+    imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/quasar/quasar-original.svg'
+
   },
   {
     id: 6,
     name: 'Nuxt',
     parentTaskId: 4,
+    imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg'
   },
 ]);
 </script>
