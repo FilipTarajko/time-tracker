@@ -9,12 +9,13 @@
     fill-input
     @filter="filterTasksByName"
     outlined
+    :style="{backgroundColor: currentTask?.color+'16'}"
   >
     <template v-slot:prepend>
       <TasksImgOrIcon :task="currentTask"></TasksImgOrIcon>
     </template>
     <template v-slot:option="scope">
-      <q-item v-bind="scope.itemProps">
+      <q-item v-bind="scope.itemProps" :style="{backgroundColor: scope?.opt.color+'16'}" style="border-top: 1px solid #3333;">
         <q-item-section avatar>
           <TasksImgOrIcon :task="scope.opt"></TasksImgOrIcon>
         </q-item-section>
@@ -83,6 +84,7 @@ const tasks: Task[] = reactive([
     parentTaskId: 1,
     imageSrc:
       'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/javascript/javascript-original.svg',
+    color: '#ffcc00',
   },
   {
     id: 3,
@@ -90,6 +92,7 @@ const tasks: Task[] = reactive([
     parentTaskId: 1,
     imageSrc:
       'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/css3/css3-original.svg',
+    color: '#0000ff',
   },
   {
     id: 4,
@@ -97,6 +100,7 @@ const tasks: Task[] = reactive([
     parentTaskId: 2,
     imageSrc:
       'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/vuejs/vuejs-original.svg',
+    color: '#00ff00',
   },
   {
     id: 5,
@@ -104,6 +108,7 @@ const tasks: Task[] = reactive([
     parentTaskId: 4,
     imageSrc:
       'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/quasar/quasar-original.svg',
+    color: '#0055ff',
   },
   {
     id: 6,
@@ -111,18 +116,21 @@ const tasks: Task[] = reactive([
     parentTaskId: 4,
     imageSrc:
       'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg',
+    color: '#00cc00',
   },
   {
     id: 7,
     name: 'Gamedev',
     parentTaskId: 1,
     icon: 'sports_esports',
+    color: '#000055',
   },
   {
     id: 8,
     name: 'Godot',
     parentTaskId: 7,
     imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/godot/godot-original.svg',
+    color: '#33aaff',
   },
   {
     id: 9,
@@ -143,6 +151,7 @@ const tasks: Task[] = reactive([
     name: 'Unity',
     parentTaskId: 7,
     imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/unity/unity-plain.svg',
+    color: '#000000',
   },
 ]);
 </script>
