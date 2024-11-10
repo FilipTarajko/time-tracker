@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Task } from 'pages/IndexPage.vue';
+import { Task } from 'stores/tasksStore';
 
 defineProps<{
   task: Task | null;
