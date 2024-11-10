@@ -1,7 +1,7 @@
 <template>
-  Current: {{ currentTimer?.name }}
+  Current: {{ currentTask?.name }}
   <q-select
-    v-model="currentTimer"
+    v-model="currentTask"
     :options="filteredTasks"
     :option-label="(task) => generateLabel(task)"
     use-input
@@ -11,22 +11,12 @@
     outlined
   >
     <template v-slot:prepend>
-        <img
-          style="width: 36px;"
-          v-if="currentTimer?.imageSrc"
-          :alt="currentTimer.name + ' category icon'"
-          :src="currentTimer.imageSrc"
-        />
+      <TasksImgOrIcon :task="currentTask"></TasksImgOrIcon>
     </template>
     <template v-slot:option="scope">
       <q-item v-bind="scope.itemProps">
         <q-item-section avatar>
-          <img
-            v-if="scope.opt.imageSrc"
-            :alt="scope.opt.name + ' category icon'"
-            :src="scope.opt.imageSrc"
-          />
-          <!--          <q-icon :name="scope.opt.icon" />-->
+          <TasksImgOrIcon :task="scope.opt"></TasksImgOrIcon>
         </q-item-section>
         <q-item-section>
           <q-item-label>{{ scope.opt.name }}</q-item-label>
@@ -37,13 +27,13 @@
       </q-item>
     </template>
   </q-select>
-  <!--  TODO: https://quasar.dev/vue-components/select#customizing-menu-options -->
 </template>
 
 <script setup lang="ts">
 import { reactive, Ref, ref } from 'vue';
+import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 
-const currentTimer = ref<Task | null>(null);
+const currentTask = ref<Task | null>(null);
 
 function generateLabel(originalTask: Task): string {
   let currentTask = originalTask;
@@ -70,10 +60,11 @@ defineOptions({
   name: 'IndexPage',
 });
 
-interface Task {
+export interface Task {
   id: number;
   name: string;
   parentTaskId?: number;
+  icon?: string;
   imageSrc?: string;
 }
 
@@ -81,7 +72,8 @@ const tasks: Task[] = reactive([
   {
     id: 1,
     name: 'IT',
-    // icon: 'map',
+    // icon: 'terminal',
+    icon: 'mdi-code-json',
   },
   {
     id: 2,
@@ -117,6 +109,30 @@ const tasks: Task[] = reactive([
     parentTaskId: 4,
     imageSrc:
       'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/nuxtjs/nuxtjs-original.svg',
+  },
+  {
+    id: 7,
+    name: 'Gamedev',
+    parentTaskId: 1,
+    icon: 'sports_esports',
+  },
+  {
+    id: 8,
+    name: 'Godot',
+    parentTaskId: 7,
+    imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/godot/godot-original.svg',
+  },
+  {
+    id: 9,
+    name: 'Languages',
+    icon: 'translate',
+  },
+  {
+    id: 10,
+    name: 'Dutch',
+    parentTaskId: 9,
+    // icon: 'fa-solid fa-fan'
+    icon: 'mdi-flower-tulip'
   },
 ]);
 </script>
