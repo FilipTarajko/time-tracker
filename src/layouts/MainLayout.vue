@@ -82,7 +82,7 @@ const leftDrawerOpen = ref(false);
     justify-content: space-around;
     padding: 0 12px;
 
-    :first-child {
+    & > :first-child {
       max-width: 1000px;
       width: 100%;
     }
