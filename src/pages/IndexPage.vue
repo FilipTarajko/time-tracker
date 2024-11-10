@@ -2,18 +2,19 @@
   Current: {{ currentTimerName }}
   <q-select
     v-model="currentTimerName"
-    :options="tasks"
+    :options="filteredTasks"
     :option-label="(task) => generateLabel(task)"
+    use-input
+    hide-selected
+    fill-input
+    @filter="filterTasksByName"
     outlined
   ></q-select>
   <!--  TODO: https://quasar.dev/vue-components/select#customizing-menu-options -->
-  <!--  TODO: https://quasar.dev/vue-components/select#example--basic-filtering -->
-  <!--  TODO: https://quasar.dev/vue-components/select#example--text-autocomplete -->
-  <!--  TODO: https://quasar.dev/vue-components/select#example--selecting-option-after-filtering -->
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, Ref, ref } from 'vue';
 
 const currentTimerName = ref('');
 
@@ -24,7 +25,16 @@ function generateLabel(originalTask: Task): string {
     currentTask = tasks.find(task => task.id === currentTask.parentTaskId)!;
     result.push(currentTask.name);
   }
-  return result.reverse().join(' → ');
+  return result.reverse().join('::');
+}
+
+const filteredTasks: Ref<Task[]> = ref([]);
+
+function filterTasksByName (val: string, update: (cb: () => void) => void) {
+  update(() => {
+    const needle = val.toLowerCase()
+    filteredTasks.value = tasks.filter(task => generateLabel(task).toLowerCase().includes(needle))
+  })
 }
 
 defineOptions({
@@ -60,6 +70,11 @@ const tasks: Task[] = reactive([
   {
     id: 5,
     name: 'Quasar',
+    parentTaskId: 4,
+  },
+  {
+    id: 6,
+    name: 'Nuxt',
     parentTaskId: 4,
   },
 ]);
