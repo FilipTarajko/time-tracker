@@ -66,6 +66,7 @@ export interface Task {
   parentTaskId?: number;
   icon?: string;
   imageSrc?: string;
+  color?: string;
 }
 
 const tasks: Task[] = reactive([
@@ -74,6 +75,7 @@ const tasks: Task[] = reactive([
     name: 'IT',
     // icon: 'terminal',
     icon: 'mdi-code-json',
+    color: '#0066ff',
   },
   {
     id: 2,
@@ -126,13 +128,21 @@ const tasks: Task[] = reactive([
     id: 9,
     name: 'Languages',
     icon: 'translate',
+    color: '#0c5050',
   },
   {
     id: 10,
     name: 'Dutch',
     parentTaskId: 9,
     // icon: 'fa-solid fa-fan'
-    icon: 'mdi-flower-tulip'
+    icon: 'mdi-flower-tulip',
+    color: '#ff8800',
+  },
+  {
+    id: 11,
+    name: 'Unity',
+    parentTaskId: 7,
+    imageSrc: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/unity/unity-plain.svg',
   },
 ]);
 </script>

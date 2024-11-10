@@ -8,14 +8,17 @@ defineProps<{
 
 <template>
   <img
-    style="width: 36px;"
+    style="width: 36px"
     v-if="task?.imageSrc"
     :alt="task.name + ' category icon'"
     :src="task.imageSrc"
   />
-  <q-icon style="width: 36px; font-size: 36px;" v-else-if="task?.icon" :name="task.icon" />
+  <q-icon
+    :style="{'color': task?.color}"
+    style="width: 36px; font-size: 36px;"
+    v-else-if="task?.icon"
+    :name="task.icon"
+  />
 </template>
 
-<style scoped lang="scss">
-
-</style>
+<style scoped lang="scss"></style>
