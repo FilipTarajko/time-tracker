@@ -10,6 +10,7 @@
     @filter="filterTasksByName"
     outlined
     :style="{backgroundColor: currentTask?.color+'16'}"
+    @update:model-value="(task: Task) => handleCurrentTaskChange(task)"
   >
     <template v-slot:prepend>
       <TasksImgOrIcon :task="currentTask"></TasksImgOrIcon>
@@ -28,14 +29,17 @@
       </q-item>
     </template>
   </q-select>
+  {{ JSON.stringify(entriesStore.entries) }}
 </template>
 
 <script setup lang="ts">
 import { Ref, ref } from 'vue';
 import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
+import { useEntriesStore } from 'stores/entriesStore';
 
 const tasksStore = useTasksStore();
+const entriesStore = useEntriesStore();
 
 const currentTask = ref<Task | null>(null);
 
@@ -58,6 +62,10 @@ function filterTasksByName(val: string, update: (cb: () => void) => void) {
       generateLabel(task).toLowerCase().includes(needle)
     );
   });
+}
+
+function handleCurrentTaskChange(task: Task) {
+  entriesStore.startNewEntry(task.id, 'TODO');
 }
 
 defineOptions({
