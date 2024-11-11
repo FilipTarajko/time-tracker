@@ -104,11 +104,27 @@ export const useTasksStore = defineStore('tasks', () => {
       result.set(task.id, task);
     }
     return result;
-  })
+  });
 
   function getTaskById(id: number) {
     return idToTaskMap.value.get(id);
   }
 
-  return { tasks, getTaskById };
+  function generateLabel(originalTask: Task): string {
+    let currentTask = originalTask;
+    const result = [currentTask.name];
+    while (currentTask.parentTaskId) {
+      currentTask = tasks.value.find(
+        (task) => task.id === currentTask.parentTaskId
+      )!;
+      result.push(currentTask.name);
+    }
+    return result.reverse().join('::');
+  }
+
+  function generateBackgroundColor(task?: Task): string | null {
+    return task?.color + '16';
+  }
+
+  return { tasks, getTaskById, generateLabel, generateBackgroundColor };
 });

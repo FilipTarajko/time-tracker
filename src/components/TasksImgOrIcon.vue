@@ -2,16 +2,11 @@
 import { Task } from 'stores/tasksStore';
 
 defineProps<{
-  task: Task | null;
+  task: Task | undefined;
 }>();
 </script>
 
 <template>
-<!--  <div-->
-<!--    v-if="task?.color"-->
-<!--    :style="{ backgroundColor: task.color }"-->
-<!--    style="height: 100%; width: 10px"-->
-<!--  ></div>-->
   <img
     style="width: 36px"
     v-if="task?.imageSrc"

@@ -3,13 +3,15 @@
   <q-select
     v-model="currentTask"
     :options="filteredTasks"
-    :option-label="(task) => generateLabel(task)"
+    :option-label="(task) => tasksStore.generateLabel(task)"
     use-input
     hide-selected
     fill-input
     @filter="filterTasksByName"
     outlined
-    :style="{ backgroundColor: currentTask?.color + '16' }"
+    :style="{
+      backgroundColor: tasksStore.generateBackgroundColor(currentTask),
+    }"
     @update:model-value="(task: Task) => handleCurrentTaskChange(task)"
   >
     <template v-slot:prepend>
@@ -18,18 +20,12 @@
     <template v-slot:option="scope">
       <q-item
         v-bind="scope.itemProps"
-        :style="{ backgroundColor: scope?.opt.color + '16' }"
+        :style="{
+          backgroundColor: tasksStore.generateBackgroundColor(scope?.opt),
+        }"
         style="border-top: 1px solid #3333"
       >
-        <q-item-section avatar>
-          <TasksImgOrIcon :task="scope.opt"></TasksImgOrIcon>
-        </q-item-section>
-        <q-item-section>
-          <q-item-label>{{ scope.opt.name }}</q-item-label>
-          <q-item-label v-if="scope.opt.parentTaskId" caption
-            >{{ generateLabel(scope.opt) }}
-          </q-item-label>
-        </q-item-section>
+        <TaskDisplay :task="scope.opt"></TaskDisplay>
       </q-item>
     </template>
   </q-select>
@@ -39,21 +35,14 @@
       v-for="entry in entriesStore.entries"
       :key="entry.id"
       :style="{
-        backgroundColor: tasksStore.getTaskById(entry.taskId)?.color + '16',
+        backgroundColor: tasksStore.generateBackgroundColor(
+          tasksStore.getTaskById(entry.taskId)
+        ),
       }"
       style="border: 1px solid #3333"
       class="q-mt-sm"
     >
-      <q-item-section avatar>
-        <TasksImgOrIcon :task="tasksStore.getTaskById(entry.taskId)"></TasksImgOrIcon>
-      </q-item-section>
-      <q-item-section>
-        <q-item-label>{{ tasksStore.getTaskById(entry.taskId).name }}</q-item-label>
-        <q-item-label v-if="tasksStore.getTaskById(entry.taskId).parentTaskId" caption
-        >{{ generateLabel(tasksStore.getTaskById(entry.taskId)) }}
-        </q-item-label>
-      </q-item-section>
-<!--      </q-item>-->
+      <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
       {{ entry.description }}
     </q-item>
   </div>
@@ -64,23 +53,12 @@ import { Ref, ref } from 'vue';
 import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
+import TaskDisplay from 'components/TaskDisplay.vue';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
 
-const currentTask = ref<Task | null>(null);
-
-function generateLabel(originalTask: Task): string {
-  let currentTask = originalTask;
-  const result = [currentTask.name];
-  while (currentTask.parentTaskId) {
-    currentTask = tasksStore.tasks.find(
-      (task) => task.id === currentTask.parentTaskId
-    )!;
-    result.push(currentTask.name);
-  }
-  return result.reverse().join('::');
-}
+const currentTask = ref<Task | undefined>(undefined);
 
 const filteredTasks: Ref<Task[]> = ref([]);
 
@@ -88,7 +66,7 @@ function filterTasksByName(val: string, update: (cb: () => void) => void) {
   update(() => {
     const needle = val.toLowerCase();
     filteredTasks.value = tasksStore.tasks.filter((task) =>
-      generateLabel(task).toLowerCase().includes(needle)
+      tasksStore.generateLabel(task).toLowerCase().includes(needle)
     );
   });
 }
