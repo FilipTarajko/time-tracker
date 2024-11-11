@@ -9,27 +9,54 @@
     fill-input
     @filter="filterTasksByName"
     outlined
-    :style="{backgroundColor: currentTask?.color+'16'}"
+    :style="{ backgroundColor: currentTask?.color + '16' }"
     @update:model-value="(task: Task) => handleCurrentTaskChange(task)"
   >
     <template v-slot:prepend>
       <TasksImgOrIcon :task="currentTask"></TasksImgOrIcon>
     </template>
     <template v-slot:option="scope">
-      <q-item v-bind="scope.itemProps" :style="{backgroundColor: scope?.opt.color+'16'}" style="border-top: 1px solid #3333;">
+      <q-item
+        v-bind="scope.itemProps"
+        :style="{ backgroundColor: scope?.opt.color + '16' }"
+        style="border-top: 1px solid #3333"
+      >
         <q-item-section avatar>
           <TasksImgOrIcon :task="scope.opt"></TasksImgOrIcon>
         </q-item-section>
         <q-item-section>
           <q-item-label>{{ scope.opt.name }}</q-item-label>
-          <q-item-label v-if="scope.opt.parentTaskId" caption>{{
-            generateLabel(scope.opt)
-          }}</q-item-label>
+          <q-item-label v-if="scope.opt.parentTaskId" caption
+            >{{ generateLabel(scope.opt) }}
+          </q-item-label>
         </q-item-section>
       </q-item>
     </template>
   </q-select>
   {{ JSON.stringify(entriesStore.entries) }}
+  <div class="flex column reverse">
+    <q-item
+      v-for="entry in entriesStore.entries"
+      :key="entry.id"
+      :style="{
+        backgroundColor: tasksStore.getTaskById(entry.taskId)?.color + '16',
+      }"
+      style="border: 1px solid #3333"
+      class="q-mt-sm"
+    >
+      <q-item-section avatar>
+        <TasksImgOrIcon :task="tasksStore.getTaskById(entry.taskId)"></TasksImgOrIcon>
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>{{ tasksStore.getTaskById(entry.taskId).name }}</q-item-label>
+        <q-item-label v-if="tasksStore.getTaskById(entry.taskId).parentTaskId" caption
+        >{{ generateLabel(tasksStore.getTaskById(entry.taskId)) }}
+        </q-item-label>
+      </q-item-section>
+<!--      </q-item>-->
+      {{ entry.description }}
+    </q-item>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -47,7 +74,9 @@ function generateLabel(originalTask: Task): string {
   let currentTask = originalTask;
   const result = [currentTask.name];
   while (currentTask.parentTaskId) {
-    currentTask = tasksStore.tasks.find((task) => task.id === currentTask.parentTaskId)!;
+    currentTask = tasksStore.tasks.find(
+      (task) => task.id === currentTask.parentTaskId
+    )!;
     result.push(currentTask.name);
   }
   return result.reverse().join('::');

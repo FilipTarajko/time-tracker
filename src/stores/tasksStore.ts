@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 export interface Task {
   id: number;
@@ -98,5 +98,17 @@ export const useTasksStore = defineStore('tasks', () => {
     },
   ]);
 
-  return { tasks };
+  const idToTaskMap = computed(() => {
+    const result = new Map();
+    for (const task of tasks.value) {
+      result.set(task.id, task);
+    }
+    return result;
+  })
+
+  function getTaskById(id: number) {
+    return idToTaskMap.value.get(id);
+  }
+
+  return { tasks, getTaskById };
 });
