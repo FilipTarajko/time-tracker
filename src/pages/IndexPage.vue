@@ -30,22 +30,38 @@
     </template>
   </q-select>
   {{ JSON.stringify(entriesStore.entries) }}
-  <div class="flex column reverse">
+  <q-list>
     <q-item
-      v-for="entry in entriesStore.entries"
+      v-for="entry in entriesStore.finishedEntries"
       :key="entry.id"
       :style="{
         backgroundColor: tasksStore.generateBackgroundColor(
           tasksStore.getTaskById(entry.taskId)
         ),
       }"
-      style="border: 1px solid #3333"
+      style="
+        border: 1px solid #3333;
+        display: grid;
+        grid-template-columns: 1fr 2fr auto;
+      "
       class="q-mt-sm"
     >
+      <div style="width: auto">
+        {{ entry.description }}
+      </div>
       <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
-      {{ entry.description }}
+      <div style="display: grid; grid-template-columns: 6em 1.6em 4em">
+        <div>
+          {{ date.formatDate(entry.startTime, 'HH:mm') }}
+          - {{ date.formatDate(entry.endTime, 'HH:mm') }}
+        </div>
+        <div></div>
+        <div>
+          {{ getTimestampDifferenceString(entry.endTime!, entry.startTime) }}
+        </div>
+      </div>
     </q-item>
-  </div>
+  </q-list>
 </template>
 
 <script setup lang="ts">
@@ -54,6 +70,7 @@ import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
 import TaskDisplay from 'components/TaskDisplay.vue';
+import { date } from 'quasar';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
@@ -73,6 +90,16 @@ function filterTasksByName(val: string, update: (cb: () => void) => void) {
 
 function handleCurrentTaskChange(task: Task) {
   entriesStore.startNewEntry(task.id, 'TODO');
+}
+
+function getTimestampDifferenceString(later: number, earlier: number): string {
+  const secondsDifference = (later - earlier) / 1000;
+  const secondsPart = Math.floor(secondsDifference % 60);
+  const minutesPart = Math.floor((secondsDifference / 60) % 60);
+  const hoursPart = Math.floor(secondsDifference / 3600);
+  return `${hoursPart < 10 ? '0' : ''}${hoursPart}:${
+    minutesPart < 10 ? '0' : ''
+  }${minutesPart}:${secondsPart < 10 ? '0' : ''}${secondsPart}`;
 }
 
 defineOptions({
