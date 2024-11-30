@@ -1,1 +1,10 @@
 // app global css in SCSS form
+
+.q-item__section--side, .q-field__prepend {
+  padding-right: 8px;
+  min-width: 36px;
+}
+
+.q-item {
+  padding: 8px 12px;
+}

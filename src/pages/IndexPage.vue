@@ -29,7 +29,6 @@
       </q-item>
     </template>
   </q-select>
-  {{ JSON.stringify(entriesStore.entries) }}
   <q-list>
     <q-item
       v-for="entry in entriesStore.finishedEntries"
@@ -42,26 +41,30 @@
       style="
         border: 1px solid #3333;
         display: grid;
-        grid-template-columns: 1fr 2fr auto;
+        grid-template-columns: 1fr auto;
       "
       class="q-mt-sm"
     >
-      <div style="width: auto">
-        {{ entry.description }}
-      </div>
-      <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
-      <div style="display: grid; grid-template-columns: 6em 1.6em 4em">
+      <div class="description-and-style-container">
         <div>
+          {{ entry.description }}
+        </div>
+        <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
+      </div>
+      <div class="timestamps-and-duration-flex">
+        <div style="width: 6em">
           {{ date.formatDate(entry.startTime, 'HH:mm') }}
           - {{ date.formatDate(entry.endTime, 'HH:mm') }}
         </div>
-        <div></div>
-        <div>
+        <div class="entry-duration" style="width: 4em">
           {{ getTimestampDifferenceString(entry.endTime!, entry.startTime) }}
         </div>
       </div>
     </q-item>
   </q-list>
+  <div style="overflow-wrap: anywhere;">
+    {{ JSON.stringify(entriesStore.entries) }}
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -106,3 +109,22 @@ defineOptions({
   name: 'IndexPage',
 });
 </script>
+
+<style scoped lang="scss">
+.description-and-style-container {
+  @media (width >= 500px) {
+    display: grid;
+    grid-template-columns: 1fr 1.6fr;
+  }
+}
+
+.timestamps-and-duration-flex {
+  justify-items: end;
+
+  @media (width >= 600px) {
+    display: flex;
+    flex-direction: row;
+    gap: 1.6em;
+  }
+}
+</style>
