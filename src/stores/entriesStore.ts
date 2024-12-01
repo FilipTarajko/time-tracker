@@ -46,13 +46,13 @@ export const useEntriesStore = defineStore('entries', () => {
       .filter((entry) => entry.endTime);
     const dates: Map<string, Entry[]> = new Map();
 
-    for (let i=0; i<finishedEntries.length; i++) {
+    for (let i = 0; i < finishedEntries.length; i++) {
       const entry = finishedEntries[i];
       const dateOfThisEntry = getLocalDateOfEntry(entry);
       if (dates.has(dateOfThisEntry)) {
-        dates.set(dateOfThisEntry, [...dates.get(dateOfThisEntry)!, entry])
+        dates.set(dateOfThisEntry, [...dates.get(dateOfThisEntry)!, entry]);
       } else {
-        dates.set(dateOfThisEntry, [entry])
+        dates.set(dateOfThisEntry, [entry]);
       }
     }
 
@@ -81,5 +81,62 @@ export const useEntriesStore = defineStore('entries', () => {
     });
   }
 
-  return { entries, finishedEntriesWithDates, startNewEntry };
+  function updateDescriptionOfEntry(entry: Entry, newDescription: string) {
+    entry.description = newDescription;
+  }
+
+  function getMinuteOfDayFromHHmm(HHmm: string): number {
+    const parts = HHmm.split(':');
+    return Number(parts[0]) * 60 + Number(parts[1]);
+  }
+
+  const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
+  const MILLISECONDS_IN_MINUTE = 60 * 1000;
+
+  function updateTimestampOfEntry(
+    entry: Entry,
+    updatedFormattedTime: string,
+    isStartTimeEdited: boolean
+  ) {
+    const editedProperty = isStartTimeEdited ? 'startTime' : 'endTime';
+
+    const valueOnEntry = date.formatDate(entry![editedProperty], 'HH:mm');
+    if (valueOnEntry == updatedFormattedTime) {
+      return;
+    }
+
+    const newValueMinuteOfDay = getMinuteOfDayFromHHmm(updatedFormattedTime);
+    const entryValueMinuteOfDay = getMinuteOfDayFromHHmm(valueOnEntry);
+    const minutesToAdd = newValueMinuteOfDay - entryValueMinuteOfDay;
+    entry![editedProperty] += minutesToAdd * MILLISECONDS_IN_MINUTE;
+
+    const startOfEntry = entry!.startTime;
+    const endOfEntry = entry!.endTime;
+
+    if (endOfEntry) {
+      if (startOfEntry > endOfEntry) {
+        if (isStartTimeEdited) {
+          entry!.startTime -= MILLISECONDS_IN_DAY;
+        } else {
+          entry!.endTime! += MILLISECONDS_IN_DAY;
+        }
+      }
+
+      if (startOfEntry <= endOfEntry - MILLISECONDS_IN_DAY) {
+        if (isStartTimeEdited) {
+          entry!.startTime += MILLISECONDS_IN_DAY;
+        } else {
+          entry!.endTime! -= MILLISECONDS_IN_DAY;
+        }
+      }
+    }
+  }
+
+  return {
+    entries,
+    finishedEntriesWithDates,
+    startNewEntry,
+    updateDescriptionOfEntry,
+    updateTimestampOfEntry,
+  };
 });
