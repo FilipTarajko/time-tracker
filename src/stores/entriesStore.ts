@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 
-interface Entry {
+export interface Entry {
   id: number;
   taskId: number;
   description: string;

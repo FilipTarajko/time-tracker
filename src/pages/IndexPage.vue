@@ -52,17 +52,14 @@
         <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
       </div>
       <div class="timestamps-and-duration-flex">
-        <div style="width: 6em">
-          {{ date.formatDate(entry.startTime, 'HH:mm') }}
-          - {{ date.formatDate(entry.endTime, 'HH:mm') }}
-        </div>
+        <EditableTimestamps :entry />
         <div class="entry-duration" style="width: 4em">
           {{ getTimestampDifferenceString(entry.endTime!, entry.startTime) }}
         </div>
       </div>
     </q-item>
   </q-list>
-  <div style="overflow-wrap: anywhere;">
+  <div style="overflow-wrap: anywhere">
     {{ JSON.stringify(entriesStore.entries) }}
   </div>
 </template>
@@ -73,7 +70,7 @@ import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
 import TaskDisplay from 'components/TaskDisplay.vue';
-import { date } from 'quasar';
+import EditableTimestamps from 'components/EditableTimestamps.vue';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
