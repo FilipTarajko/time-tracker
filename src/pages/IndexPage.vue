@@ -52,8 +52,8 @@
       class="q-mt-sm"
     >
       <div class="description-and-style-container">
-        <EntryDescription :entry/>
         <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
+        <EntryDescription :entry/>
       </div>
       <div class="timestamps-and-duration-flex">
         <EntryTimestamps :entry />
@@ -114,9 +114,14 @@ defineOptions({
 
 <style scoped lang="scss">
 .description-and-style-container {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+
   @media (width >= 500px) {
     display: grid;
-    grid-template-columns: 1fr 1.6fr;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
   }
 }
 
