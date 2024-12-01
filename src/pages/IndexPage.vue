@@ -13,6 +13,7 @@
       backgroundColor: tasksStore.generateBackgroundColor(currentTask),
     }"
     @update:model-value="(task: Task) => handleCurrentTaskChange(task)"
+    @new-value="createAndSelectNewTask"
   >
     <template v-slot:prepend>
       <TasksImgOrIcon :task="currentTask"></TasksImgOrIcon>
@@ -66,6 +67,10 @@
   <div style="overflow-wrap: anywhere">
     {{ JSON.stringify(entriesStore.entries) }}
   </div>
+  <br>
+  <div style="overflow-wrap: anywhere">
+    {{ JSON.stringify(tasksStore.tasks) }}
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -80,6 +85,7 @@ import EntryDescription from 'components/EntryDescription.vue';
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
 
+// TODO: connect with store
 const currentTask = ref<Task | undefined>(undefined);
 
 const filteredTasks: Ref<Task[]> = ref([]);
@@ -105,6 +111,12 @@ function getTimestampDifferenceString(later: number, earlier: number): string {
   return `${hoursPart < 10 ? '0' : ''}${hoursPart}:${
     minutesPart < 10 ? '0' : ''
   }${minutesPart}:${secondsPart < 10 ? '0' : ''}${secondsPart}`;
+}
+
+function createAndSelectNewTask(pullPath: string) {
+  const newTask = tasksStore.createAndStartNewTaskByPath(pullPath);
+  handleCurrentTaskChange(newTask);
+  currentTask.value = newTask;
 }
 
 defineOptions({

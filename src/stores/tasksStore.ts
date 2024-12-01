@@ -126,5 +126,44 @@ export const useTasksStore = defineStore('tasks', () => {
     return task?.color + '16';
   }
 
-  return { tasks, getTaskById, generateLabel, generateBackgroundColor };
+  function createNewTask(name: string, parentTaskId: number | undefined) {
+    const newTask = {
+      id: (tasks.value.at(-1)?.id ?? 0) + 1,
+      parentTaskId,
+      name,
+      color: '#ffffff',
+    };
+
+    tasks.value.push(newTask);
+
+    return newTask;
+  }
+
+  function createAndStartNewTaskByPath(fullPath: string) {
+    const names = fullPath.split('::');
+    let parentTaskId: number | undefined = undefined;
+    let resultTask: Task | undefined = undefined;
+
+    for (let i = 0; i < names.length; i++) {
+      const name = names[i];
+      const matchedTask = tasks.value.find(
+        (task) =>
+          task.name.toLowerCase() === name.toLowerCase() &&
+          task.parentTaskId === parentTaskId
+      );
+
+      resultTask = matchedTask ?? createNewTask(name, parentTaskId);
+      parentTaskId = resultTask.id;
+    }
+
+    return resultTask!;
+  }
+
+  return {
+    tasks,
+    getTaskById,
+    generateLabel,
+    generateBackgroundColor,
+    createAndStartNewTaskByPath,
+  };
 });
