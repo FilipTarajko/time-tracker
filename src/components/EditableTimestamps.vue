@@ -10,7 +10,8 @@
       <q-popup-proxy transition-show="scale" transition-hide="scale">
         <q-time v-model="hourAndMinuteForQTime">
           <div class="row items-center justify-end">
-            <q-btn v-close-popup label="Close" color="primary" flat />
+            <q-btn v-close-popup label="Cancel" color="primary" flat />
+            <q-btn v-close-popup label="Save" color="primary" flat @click="editTimestamp" />
           </div>
         </q-time>
       </q-popup-proxy>
@@ -27,7 +28,8 @@
       <q-popup-proxy transition-show="scale" transition-hide="scale">
         <q-time v-model="hourAndMinuteForQTime">
           <div class="row items-center justify-end">
-            <q-btn v-close-popup label="Close" color="primary" flat />
+            <q-btn v-close-popup label="Cancel" color="primary" flat />
+            <q-btn v-close-popup label="Save" color="primary" flat @click="editTimestamp" />
           </div>
         </q-time>
       </q-popup-proxy>
@@ -37,7 +39,7 @@
 
 <script setup lang="ts">
 import { date } from 'quasar';
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { Entry } from 'stores/entriesStore';
 
 const props = defineProps<{
@@ -55,7 +57,8 @@ function getMinuteOfDayFromHHmm(HHmm: string): number {
 const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
 const MILLISECONDS_IN_MINUTE = 60 * 1000;
 
-function editTimestamp(updatedFormattedTime: string) {
+function editTimestamp() {
+  const updatedFormattedTime = hourAndMinuteForQTime.value;
   const editedProperty = isStartTimeEdited ? 'startTime' : 'endTime';
 
   const valueOnEntry = date.formatDate(props.entry![editedProperty], 'HH:mm');
@@ -89,10 +92,6 @@ function editTimestamp(updatedFormattedTime: string) {
     }
   }
 }
-
-watch(hourAndMinuteForQTime, (updatedFormattedTime) => {
-  editTimestamp(updatedFormattedTime);
-});
 </script>
 
 <style scoped lang="scss"></style>
