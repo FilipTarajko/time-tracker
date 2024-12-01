@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
+import { date } from 'quasar';
 
 export interface Entry {
   id: number;
@@ -7,6 +8,7 @@ export interface Entry {
   description: string;
   startTime: number;
   endTime?: number;
+  date?: string;
 }
 
 export const useEntriesStore = defineStore('entries', () => {
@@ -34,8 +36,27 @@ export const useEntriesStore = defineStore('entries', () => {
     },
   ]);
 
-  const finishedEntries = computed<Entry[]>(() => {
-    return entries.value.filter((entry) => entry.endTime);
+  function getLocalDateOfEntry(entry: Entry) {
+    return date.formatDate(new Date(entry.startTime), 'YYYY-MM-DD');
+  }
+
+  const finishedEntriesWithDates = computed<Map<string, Entry[]>>(() => {
+    const finishedEntries = entries.value
+      .sort((a, b) => b.startTime - a.startTime)
+      .filter((entry) => entry.endTime);
+    const dates: Map<string, Entry[]> = new Map();
+
+    for (let i=0; i<finishedEntries.length; i++) {
+      const entry = finishedEntries[i];
+      const dateOfThisEntry = getLocalDateOfEntry(entry);
+      if (dates.has(dateOfThisEntry)) {
+        dates.set(dateOfThisEntry, [...dates.get(dateOfThisEntry)!, entry])
+      } else {
+        dates.set(dateOfThisEntry, [entry])
+      }
+    }
+
+    return dates;
   });
 
   function endMostRecentEntryIfOngoing() {
@@ -52,7 +73,7 @@ export const useEntriesStore = defineStore('entries', () => {
     endMostRecentEntryIfOngoing();
 
     entries.value.unshift({
-      id: (entries.value?.at(-1)?.id ?? 0) + 1,
+      id: (entries.value[0]?.id ?? 0) + 1,
       taskId: taskId,
       description: description,
       startTime: new Date().getTime(),
@@ -60,5 +81,5 @@ export const useEntriesStore = defineStore('entries', () => {
     });
   }
 
-  return { entries, finishedEntries, startNewEntry };
+  return { entries, finishedEntriesWithDates, startNewEntry };
 });

@@ -29,9 +29,15 @@
       </q-item>
     </template>
   </q-select>
-  <q-list>
+  <div
+    v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
+    :key="dateAndEntries[0]"
+  >
+    <div style="margin-top: 8px;">
+      {{ dateAndEntries[0] }}
+    </div>
     <q-item
-      v-for="entry in entriesStore.finishedEntries"
+      v-for="entry in dateAndEntries[1]"
       :key="entry.id"
       :style="{
         backgroundColor: tasksStore.generateBackgroundColor(
@@ -58,7 +64,7 @@
         </div>
       </div>
     </q-item>
-  </q-list>
+  </div>
   <div style="overflow-wrap: anywhere">
     {{ JSON.stringify(entriesStore.entries) }}
   </div>
