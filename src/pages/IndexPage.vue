@@ -14,8 +14,10 @@
       @filter="filterTasksByName"
       outlined
       :style="{
-      backgroundColor: tasksStore.generateBackgroundColor(tasksStore.currentTask),
-    }"
+        backgroundColor: tasksStore.generateBackgroundColor(
+          tasksStore.currentTask
+        ),
+      }"
       @new-value="createAndSelectNewTask"
     >
       <template v-slot:prepend>
@@ -25,14 +27,22 @@
         <q-item
           v-bind="scope.itemProps"
           :style="{
-          backgroundColor: tasksStore.generateBackgroundColor(scope?.opt),
-        }"
+            backgroundColor: tasksStore.generateBackgroundColor(scope?.opt),
+          }"
           style="border-top: 1px solid #3333"
         >
           <TaskDisplay :task="scope.opt"></TaskDisplay>
         </q-item>
       </template>
     </q-select>
+    <q-btn
+      color="primary"
+      class="q-my-sm"
+      @click="entriesStore.endMostRecentEntryIfOngoing"
+      :disabled="!tasksStore.currentTask"
+    >
+      end
+    </q-btn>
     <div
       v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
       :key="dateAndEntries[0]"
@@ -44,19 +54,21 @@
         v-for="entry in dateAndEntries[1]"
         :key="entry.id"
         :style="{
-        backgroundColor: tasksStore.generateBackgroundColor(
-          tasksStore.getTaskById(entry.taskId)
-        ),
-      }"
+          backgroundColor: tasksStore.generateBackgroundColor(
+            tasksStore.getTaskById(entry.taskId)
+          ),
+        }"
         style="
-        border: 1px solid #3333;
-        display: grid;
-        grid-template-columns: 1fr auto;
-      "
+          border: 1px solid #3333;
+          display: grid;
+          grid-template-columns: 1fr auto;
+        "
         class="q-mt-sm"
       >
         <div class="description-and-style-container">
-          <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
+          <TaskDisplay
+            :task="tasksStore.getTaskById(entry.taskId)"
+          ></TaskDisplay>
           <EntryDescription :entry />
         </div>
         <div class="timestamps-and-duration-flex">

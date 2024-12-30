@@ -176,6 +176,6 @@ export const useEntriesStore = defineStore('entries', () => {
     updateDescriptionOfEntry,
     updateTimestampOfEntry,
     initFromSupabase,
-    upsertEntries: upsertEntry,
+    endMostRecentEntryIfOngoing,
   };
 });

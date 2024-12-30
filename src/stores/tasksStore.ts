@@ -154,7 +154,7 @@ export const useTasksStore = defineStore('tasks', () => {
   }
 
   function generateBackgroundColor(task?: Task): string | null {
-    return task?.color + '16';
+    return (task?.color ?? '#ffffff') + '16';
   }
 
   function createNewTask(name: string, parentTaskId: number | undefined) {
