@@ -1,39 +1,45 @@
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { date } from 'quasar';
+import { supabase } from 'src/lib/supabaseClient';
+
+import { Notify } from 'quasar';
 
 export interface Entry {
-  id: number;
+  dbid?: string;
+  id: number; // TODO: change from autoincrement to uuid
   taskId: number;
   description: string;
   startTime: number;
   endTime?: number;
   date?: string;
+  user_id?: string;
+  // TODO: add last_edited
 }
 
 export const useEntriesStore = defineStore('entries', () => {
   const entries = ref<Entry[]>([
-    {
-      id: 3,
-      taskId: 3,
-      description: 'Lorem',
-      startTime: 1731333541000,
-      endTime: 1731333773809,
-    },
-    {
-      id: 2,
-      taskId: 2,
-      description: 'Placeholder',
-      startTime: 1731329941000,
-      endTime: 1731333541000,
-    },
-    {
-      id: 1,
-      taskId: 1,
-      description: 'Todo',
-      startTime: 1731315035000,
-      endTime: 1731329941000,
-    },
+    // {
+    //   id: 3,
+    //   taskId: 3,
+    //   description: 'Lorem',
+    //   startTime: 1731333541000,
+    //   endTime: 1731333773809,
+    // },
+    // {
+    //   id: 2,
+    //   taskId: 2,
+    //   description: 'Placeholder',
+    //   startTime: 1731329941000,
+    //   endTime: 1731333541000,
+    // },
+    // {
+    //   id: 1,
+    //   taskId: 1,
+    //   description: 'Todo',
+    //   startTime: 1731315035000,
+    //   endTime: 1731329941000,
+    // },
   ]);
 
   function getLocalDateOfEntry(entry: Entry) {
@@ -66,23 +72,30 @@ export const useEntriesStore = defineStore('entries', () => {
       if (mostRecentEntry && !mostRecentEntry?.endTime) {
         mostRecentEntry.endTime = new Date().getTime();
       }
+
+      upsertEntry(mostRecentEntry);
     }
   }
 
-  function startNewEntry(taskId: number, description: string) {
+  async function startNewEntry(taskId: number, description: string) {
     endMostRecentEntryIfOngoing();
 
-    entries.value.unshift({
+    const newEntry = {
       id: (entries.value[0]?.id ?? 0) + 1,
       taskId: taskId,
       description: description,
       startTime: new Date().getTime(),
       endTime: undefined,
-    });
+    }
+
+    entries.value.unshift(newEntry);
+
+    upsertEntry(newEntry);
   }
 
   function updateDescriptionOfEntry(entry: Entry, newDescription: string) {
     entry.description = newDescription;
+    upsertEntry(entry);
   }
 
   function getMinuteOfDayFromHHmm(HHmm: string): number {
@@ -130,6 +143,30 @@ export const useEntriesStore = defineStore('entries', () => {
         }
       }
     }
+
+    upsertEntry(entry);
+  }
+
+  async function initFromSupabase() {
+    const { data } = await supabase.from('entries').select();
+    entries.value = data as Entry[];
+  }
+
+  async function upsertEntry(entry: Entry) {
+    // TODO: automatically upsert all edited after last sync?
+
+    const { data, error } = await supabase
+      .from('entries')
+      .upsert(entry)
+      .select();
+
+    if (error) {
+      Notify.create({ message: error.message, type: 'negative' });
+      return;
+    }
+
+    Notify.create({ message: 'Upserted entries', type: 'positive' });
+    entry.dbid = data[0].dbid;
   }
 
   return {
@@ -138,5 +175,7 @@ export const useEntriesStore = defineStore('entries', () => {
     startNewEntry,
     updateDescriptionOfEntry,
     updateTimestampOfEntry,
+    initFromSupabase,
+    upsertEntries: upsertEntry,
   };
 });

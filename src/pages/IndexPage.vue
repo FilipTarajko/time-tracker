@@ -1,76 +1,73 @@
 <template>
-  Current: {{ currentTask?.name }}
-  <q-select
-    v-model="currentTask"
-    :options="filteredTasks"
-    :option-label="(task) => tasksStore.generateLabel(task)"
-    use-input
-    hide-selected
-    fill-input
-    @filter="filterTasksByName"
-    outlined
-    :style="{
-      backgroundColor: tasksStore.generateBackgroundColor(currentTask),
+  <Suspense>
+    <SupabasePlayground />
+  </Suspense>
+  <template v-if="useAuthStore().isLoggedIn">
+    Current: {{ tasksStore.currentTask?.name }}
+    <q-select
+      v-model="tasksStore.currentTask"
+      :options="filteredTasks"
+      :option-label="(task) => tasksStore.generateLabel(task)"
+      use-input
+      hide-selected
+      fill-input
+      @filter="filterTasksByName"
+      outlined
+      :style="{
+      backgroundColor: tasksStore.generateBackgroundColor(tasksStore.currentTask),
     }"
-    @update:model-value="(task: Task) => handleCurrentTaskChange(task)"
-    @new-value="createAndSelectNewTask"
-  >
-    <template v-slot:prepend>
-      <TasksImgOrIcon :task="currentTask"></TasksImgOrIcon>
-    </template>
-    <template v-slot:option="scope">
-      <q-item
-        v-bind="scope.itemProps"
-        :style="{
+      @new-value="createAndSelectNewTask"
+    >
+      <template v-slot:prepend>
+        <TasksImgOrIcon :task="tasksStore.currentTask"></TasksImgOrIcon>
+      </template>
+      <template v-slot:option="scope">
+        <q-item
+          v-bind="scope.itemProps"
+          :style="{
           backgroundColor: tasksStore.generateBackgroundColor(scope?.opt),
         }"
-        style="border-top: 1px solid #3333"
-      >
-        <TaskDisplay :task="scope.opt"></TaskDisplay>
-      </q-item>
-    </template>
-  </q-select>
-  <div
-    v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
-    :key="dateAndEntries[0]"
-  >
-    <div style="margin-top: 8px;">
-      {{ dateAndEntries[0] }}
-    </div>
-    <q-item
-      v-for="entry in dateAndEntries[1]"
-      :key="entry.id"
-      :style="{
+          style="border-top: 1px solid #3333"
+        >
+          <TaskDisplay :task="scope.opt"></TaskDisplay>
+        </q-item>
+      </template>
+    </q-select>
+    <div
+      v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
+      :key="dateAndEntries[0]"
+    >
+      <div style="margin-top: 8px">
+        {{ dateAndEntries[0] }}
+      </div>
+      <q-item
+        v-for="entry in dateAndEntries[1]"
+        :key="entry.id"
+        :style="{
         backgroundColor: tasksStore.generateBackgroundColor(
           tasksStore.getTaskById(entry.taskId)
         ),
       }"
-      style="
+        style="
         border: 1px solid #3333;
         display: grid;
         grid-template-columns: 1fr auto;
       "
-      class="q-mt-sm"
-    >
-      <div class="description-and-style-container">
-        <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
-        <EntryDescription :entry/>
-      </div>
-      <div class="timestamps-and-duration-flex">
-        <EntryTimestamps :entry />
-        <div class="entry-duration" style="width: 4em">
-          {{ getTimestampDifferenceString(entry.endTime!, entry.startTime) }}
+        class="q-mt-sm"
+      >
+        <div class="description-and-style-container">
+          <TaskDisplay :task="tasksStore.getTaskById(entry.taskId)"></TaskDisplay>
+          <EntryDescription :entry />
         </div>
-      </div>
-    </q-item>
-  </div>
-  <div style="overflow-wrap: anywhere">
-    {{ JSON.stringify(entriesStore.entries) }}
-  </div>
-  <br>
-  <div style="overflow-wrap: anywhere">
-    {{ JSON.stringify(tasksStore.tasks) }}
-  </div>
+        <div class="timestamps-and-duration-flex">
+          <EntryTimestamps :entry />
+          <div class="entry-duration" style="width: 4em">
+            {{ getTimestampDifferenceString(entry.endTime!, entry.startTime) }}
+          </div>
+        </div>
+      </q-item>
+    </div>
+  </template>
 </template>
 
 <script setup lang="ts">
@@ -81,12 +78,11 @@ import { useEntriesStore } from 'stores/entriesStore';
 import TaskDisplay from 'components/TaskDisplay.vue';
 import EntryTimestamps from 'components/EntryTimestamps.vue';
 import EntryDescription from 'components/EntryDescription.vue';
+import SupabasePlayground from 'components/AuthComponent.vue';
+import { useAuthStore } from 'stores/authStore';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
-
-// TODO: connect with store
-const currentTask = ref<Task | undefined>(undefined);
 
 const filteredTasks: Ref<Task[]> = ref([]);
 
@@ -97,10 +93,6 @@ function filterTasksByName(val: string, update: (cb: () => void) => void) {
       tasksStore.generateLabel(task).toLowerCase().includes(needle)
     );
   });
-}
-
-function handleCurrentTaskChange(task: Task) {
-  entriesStore.startNewEntry(task.id, 'TODO');
 }
 
 function getTimestampDifferenceString(later: number, earlier: number): string {
@@ -115,8 +107,7 @@ function getTimestampDifferenceString(later: number, earlier: number): string {
 
 function createAndSelectNewTask(pullPath: string) {
   const newTask = tasksStore.createAndStartNewTaskByPath(pullPath);
-  handleCurrentTaskChange(newTask);
-  currentTask.value = newTask;
+  tasksStore.handleCurrentTaskChange(newTask);
 }
 
 defineOptions({
