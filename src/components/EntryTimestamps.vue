@@ -27,10 +27,10 @@
       @click="
         // @ts-ignore
         isStartTimeEdited = false;
-        hourAndMinuteForQTime = date.formatDate(entry.endTime, 'HH:mm');
+        hourAndMinuteForQTime = date.formatDate(entry.endTime ?? undefined, 'HH:mm');
       "
     >
-      {{ date.formatDate(entry.endTime, 'HH:mm') }}
+      {{ date.formatDate(entry.endTime ?? undefined, 'HH:mm') }}
       <q-popup-proxy transition-show="scale" transition-hide="scale">
         <q-time v-model="hourAndMinuteForQTime">
           <div class="row items-center justify-end">

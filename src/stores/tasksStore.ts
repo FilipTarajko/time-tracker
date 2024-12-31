@@ -119,7 +119,7 @@ export const useTasksStore = defineStore('tasks', () => {
   const currentTask = computed<Task | undefined>({
     get() {
       const currentEntry = useEntriesStore().entries.find(
-        (entry) => entry.endTime == undefined
+        (entry) => entry.endTime == null
       );
 
       if (!currentEntry) {
@@ -197,7 +197,7 @@ export const useTasksStore = defineStore('tasks', () => {
   }
 
   function handleCurrentTaskChange(task: Task) {
-    useEntriesStore().startNewEntry(task.id, 'TODO');
+    useEntriesStore().startNewEntry(task.id);
   }
 
   async function upsertTask(task: Task) {

@@ -3,46 +3,51 @@
     <SupabasePlayground />
   </Suspense>
   <template v-if="useAuthStore().isLoggedIn">
-    Current: {{ tasksStore.currentTask?.name }}
-    <q-select
-      v-model="tasksStore.currentTask"
-      :options="filteredTasks"
-      :option-label="(task) => tasksStore.generateLabel(task)"
-      use-input
-      hide-selected
-      fill-input
-      @filter="filterTasksByName"
-      outlined
-      :style="{
-        backgroundColor: tasksStore.generateBackgroundColor(
-          tasksStore.currentTask
-        ),
-      }"
-      @new-value="createAndSelectNewTask"
-    >
-      <template v-slot:prepend>
-        <TasksImgOrIcon :task="tasksStore.currentTask"></TasksImgOrIcon>
-      </template>
-      <template v-slot:option="scope">
-        <q-item
-          v-bind="scope.itemProps"
-          :style="{
-            backgroundColor: tasksStore.generateBackgroundColor(scope?.opt),
-          }"
-          style="border-top: 1px solid #3333"
-        >
-          <TaskDisplay :task="scope.opt"></TaskDisplay>
-        </q-item>
-      </template>
-    </q-select>
-    <q-btn
-      color="primary"
-      class="q-my-sm"
-      @click="entriesStore.endMostRecentEntryIfOngoing"
-      :disabled="!tasksStore.currentTask"
-    >
-      end
-    </q-btn>
+    <div class="current-entry">
+      <q-select
+        v-model="tasksStore.currentTask"
+        :options="filteredTasks"
+        :option-label="(task) => tasksStore.generateLabel(task)"
+        use-input
+        hide-selected
+        fill-input
+        @filter="filterTasksByName"
+        outlined
+        :style="{
+          backgroundColor: tasksStore.generateBackgroundColor(
+            tasksStore.currentTask
+          ),
+        }"
+        @new-value="createAndSelectNewTask"
+      >
+        <template v-slot:prepend>
+          <TasksImgOrIcon :task="tasksStore.currentTask"></TasksImgOrIcon>
+        </template>
+        <template v-slot:option="scope">
+          <q-item
+            v-bind="scope.itemProps"
+            :style="{
+              backgroundColor: tasksStore.generateBackgroundColor(scope?.opt),
+            }"
+            style="border-top: 1px solid #3333"
+          >
+            <TaskDisplay :task="scope.opt"></TaskDisplay>
+          </q-item>
+        </template>
+      </q-select>
+      <q-input
+        label="description"
+        v-model="entriesStore.descriptionForNewEntry"
+      >
+      </q-input>
+      <q-btn
+        color="primary"
+        @click="entriesStore.endMostRecentEntryIfOngoing"
+        :disabled="!tasksStore.currentTask"
+      >
+        end
+      </q-btn>
+    </div>
     <div
       v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
       :key="dateAndEntries[0]"
@@ -128,6 +133,19 @@ defineOptions({
 </script>
 
 <style scoped lang="scss">
+.current-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  margin: 32px auto;
+  width: fit-content;
+
+  @media (width >= 500px) {
+    flex-direction: row;
+  }
+}
+
 .description-and-style-container {
   display: flex;
   flex-direction: column-reverse;

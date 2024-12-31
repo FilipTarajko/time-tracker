@@ -11,7 +11,7 @@ export interface Entry {
   taskId: number;
   description: string;
   startTime: number;
-  endTime?: number;
+  endTime: number | null;
   date?: string;
   user_id?: string;
   // TODO: add last_edited
@@ -65,28 +65,37 @@ export const useEntriesStore = defineStore('entries', () => {
     return dates;
   });
 
-  function endMostRecentEntryIfOngoing() {
+  const ongoingEntry = computed<Entry | null>(() => {
     const atLeastOneEntryExists = entries.value.length > 0;
     if (atLeastOneEntryExists) {
       const mostRecentEntry = entries.value[0];
       if (mostRecentEntry && !mostRecentEntry?.endTime) {
-        mostRecentEntry.endTime = new Date().getTime();
+        return mostRecentEntry;
       }
+    }
 
-      upsertEntry(mostRecentEntry);
+    return null;
+  });
+
+  function endMostRecentEntryIfOngoing() {
+    if (ongoingEntry.value) {
+      const entryBeingEnded = ongoingEntry.value;
+      entryBeingEnded.endTime = new Date().getTime();
+      descriptionForNewEntry.value = '';
+      upsertEntry(entryBeingEnded);
     }
   }
 
-  async function startNewEntry(taskId: number, description: string) {
+  async function startNewEntry(taskId: number, description?: string) {
     endMostRecentEntryIfOngoing();
 
     const newEntry = {
       id: (entries.value[0]?.id ?? 0) + 1,
       taskId: taskId,
-      description: description,
+      description: description ?? (descriptionForNewEntry.value || ''), // TODO: task's default description
       startTime: new Date().getTime(),
-      endTime: undefined,
-    }
+      endTime: null,
+    };
 
     entries.value.unshift(newEntry);
 
@@ -113,7 +122,7 @@ export const useEntriesStore = defineStore('entries', () => {
   ) {
     const editedProperty = isStartTimeEdited ? 'startTime' : 'endTime';
 
-    const valueOnEntry = date.formatDate(entry![editedProperty], 'HH:mm');
+    const valueOnEntry = date.formatDate(entry![editedProperty] ?? undefined, 'HH:mm');
     if (valueOnEntry == updatedFormattedTime) {
       return;
     }
@@ -169,6 +178,20 @@ export const useEntriesStore = defineStore('entries', () => {
     entry.dbid = data[0].dbid;
   }
 
+  const futureEntryDescription = ref('');
+  const descriptionForNewEntry = computed<string>({
+    get() {
+      return ongoingEntry.value?.description ?? futureEntryDescription.value;
+    },
+    set(value) {
+      if (ongoingEntry.value) {
+        updateDescriptionOfEntry(ongoingEntry.value, value);
+      } else {
+        futureEntryDescription.value = value;
+      }
+    }
+  })
+
   return {
     entries,
     finishedEntriesWithDates,
@@ -177,5 +200,7 @@ export const useEntriesStore = defineStore('entries', () => {
     updateTimestampOfEntry,
     initFromSupabase,
     endMostRecentEntryIfOngoing,
+    ongoingEntry,
+    descriptionForNewEntry,
   };
 });
