@@ -12,6 +12,7 @@ export interface Task {
   icon?: string;
   imageSrc?: string;
   color?: string;
+  defaultDescription?: string;
   // TODO: add last_edited
 }
 

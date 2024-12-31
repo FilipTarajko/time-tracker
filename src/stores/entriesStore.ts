@@ -4,6 +4,7 @@ import { date } from 'quasar';
 import { supabase } from 'src/lib/supabaseClient';
 
 import { Notify } from 'quasar';
+import { useTasksStore } from 'stores/tasksStore';
 
 export interface Entry {
   dbid?: string;
@@ -92,7 +93,10 @@ export const useEntriesStore = defineStore('entries', () => {
     const newEntry = {
       id: (entries.value[0]?.id ?? 0) + 1,
       taskId: taskId,
-      description: description ?? (descriptionForNewEntry.value || ''), // TODO: task's default description
+      description:
+        description ??
+        (descriptionForNewEntry.value ||
+          useTasksStore().getTaskById(taskId).defaultDescription),
       startTime: new Date().getTime(),
       endTime: null,
     };
@@ -122,7 +126,10 @@ export const useEntriesStore = defineStore('entries', () => {
   ) {
     const editedProperty = isStartTimeEdited ? 'startTime' : 'endTime';
 
-    const valueOnEntry = date.formatDate(entry![editedProperty] ?? undefined, 'HH:mm');
+    const valueOnEntry = date.formatDate(
+      entry![editedProperty] ?? undefined,
+      'HH:mm'
+    );
     if (valueOnEntry == updatedFormattedTime) {
       return;
     }
@@ -189,8 +196,8 @@ export const useEntriesStore = defineStore('entries', () => {
       } else {
         futureEntryDescription.value = value;
       }
-    }
-  })
+    },
+  });
 
   return {
     entries,
