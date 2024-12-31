@@ -8,8 +8,8 @@ import { useTasksStore } from 'stores/tasksStore';
 
 export interface Entry {
   dbid?: string;
-  id: number; // TODO: change from autoincrement to uuid
-  taskId: number;
+  id: string;
+  taskId: string;
   description: string;
   startTime: number;
   endTime: number | null;
@@ -19,29 +19,7 @@ export interface Entry {
 }
 
 export const useEntriesStore = defineStore('entries', () => {
-  const entries = ref<Entry[]>([
-    // {
-    //   id: 3,
-    //   taskId: 3,
-    //   description: 'Lorem',
-    //   startTime: 1731333541000,
-    //   endTime: 1731333773809,
-    // },
-    // {
-    //   id: 2,
-    //   taskId: 2,
-    //   description: 'Placeholder',
-    //   startTime: 1731329941000,
-    //   endTime: 1731333541000,
-    // },
-    // {
-    //   id: 1,
-    //   taskId: 1,
-    //   description: 'Todo',
-    //   startTime: 1731315035000,
-    //   endTime: 1731329941000,
-    // },
-  ]);
+  const entries = ref<Entry[]>([]);
 
   function getLocalDateOfEntry(entry: Entry) {
     return date.formatDate(new Date(entry.startTime), 'YYYY-MM-DD');
@@ -87,11 +65,11 @@ export const useEntriesStore = defineStore('entries', () => {
     }
   }
 
-  async function startNewEntry(taskId: number, description?: string) {
+  async function startNewEntry(taskId: string, description?: string) {
     endMostRecentEntryIfOngoing();
 
     const newEntry = {
-      id: (entries.value[0]?.id ?? 0) + 1,
+      id: crypto.randomUUID(),
       taskId: taskId,
       description:
         description ??
