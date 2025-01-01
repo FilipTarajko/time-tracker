@@ -42,7 +42,7 @@
       </q-input>
       <q-btn
         color="primary"
-        @click="entriesStore.endMostRecentEntryIfOngoing"
+        @click="entriesStore.endOngoingEntry"
         :disabled="!tasksStore.currentTask"
       >
         end

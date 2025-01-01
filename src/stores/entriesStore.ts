@@ -45,18 +45,10 @@ export const useEntriesStore = defineStore('entries', () => {
   });
 
   const ongoingEntry = computed<Entry | null>(() => {
-    const atLeastOneEntryExists = entries.value.length > 0;
-    if (atLeastOneEntryExists) {
-      const mostRecentEntry = entries.value[0];
-      if (mostRecentEntry && !mostRecentEntry?.endTime) {
-        return mostRecentEntry;
-      }
-    }
-
-    return null;
+    return entries.value.find((entry) => !entry.endTime) ?? null;
   });
 
-  function endMostRecentEntryIfOngoing() {
+  function endOngoingEntry() {
     if (ongoingEntry.value) {
       const entryBeingEnded = ongoingEntry.value;
       entryBeingEnded.endTime = new Date().getTime();
@@ -66,7 +58,7 @@ export const useEntriesStore = defineStore('entries', () => {
   }
 
   async function startNewEntry(taskId: string, description?: string) {
-    endMostRecentEntryIfOngoing();
+    endOngoingEntry();
 
     const newEntry = {
       id: crypto.randomUUID(),
@@ -118,10 +110,10 @@ export const useEntriesStore = defineStore('entries', () => {
     entry![editedProperty] += minutesToAdd * MILLISECONDS_IN_MINUTE;
 
     const startOfEntry = entry!.startTime;
-    const endOfEntry = entry!.endTime;
+    const endOfEntryOrNow = entry!.endTime ?? Date.now();
 
-    if (endOfEntry) {
-      if (startOfEntry > endOfEntry) {
+    if (endOfEntryOrNow) {
+      if (startOfEntry > endOfEntryOrNow) {
         if (isStartTimeEdited) {
           entry!.startTime -= MILLISECONDS_IN_DAY;
         } else {
@@ -129,7 +121,7 @@ export const useEntriesStore = defineStore('entries', () => {
         }
       }
 
-      if (startOfEntry <= endOfEntry - MILLISECONDS_IN_DAY) {
+      if (startOfEntry <= endOfEntryOrNow - MILLISECONDS_IN_DAY) {
         if (isStartTimeEdited) {
           entry!.startTime += MILLISECONDS_IN_DAY;
         } else {
@@ -184,7 +176,7 @@ export const useEntriesStore = defineStore('entries', () => {
     updateDescriptionOfEntry,
     updateTimestampOfEntry,
     initFromSupabase,
-    endMostRecentEntryIfOngoing,
+    endOngoingEntry,
     ongoingEntry,
     descriptionForNewEntry,
   };
