@@ -179,5 +179,6 @@ export const useEntriesStore = defineStore('entries', () => {
     endOngoingEntry,
     ongoingEntry,
     descriptionForNewEntry,
+    getLocalDateOfEntry,
   };
 });

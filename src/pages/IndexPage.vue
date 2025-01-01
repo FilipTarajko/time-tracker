@@ -61,8 +61,25 @@
       v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
       :key="dateAndEntries[0]"
     >
-      <div style="margin-top: 8px">
-        {{ dateAndEntries[0] }}
+      <div style="margin-top: 8px; display: flex; gap: 1.6em">
+        <div>
+          {{ dateAndEntries[0] }}
+        </div>
+        <div>
+          {{
+            formatDuration(
+              dateAndEntries[1].reduce(
+                (total, entry) => total + entry.endTime! - entry.startTime,
+                0
+              ) +
+                (entriesStore.ongoingEntry &&
+                entriesStore.getLocalDateOfEntry(entriesStore.ongoingEntry) ==
+                  dateAndEntries[0]
+                  ? Date.now() - entriesStore.ongoingEntry.startTime
+                  : 0)
+            )
+          }}
+        </div>
       </div>
       <q-item
         v-for="entry in dateAndEntries[1]"
@@ -121,14 +138,18 @@ function filterTasksByName(val: string, update: (cb: () => void) => void) {
   });
 }
 
-function getTimestampDifferenceString(later: number, earlier: number): string {
-  const secondsDifference = (later - earlier) / 1000;
-  const secondsPart = Math.floor(secondsDifference % 60);
-  const minutesPart = Math.floor((secondsDifference / 60) % 60);
-  const hoursPart = Math.floor(secondsDifference / 3600);
+function formatDuration(duration: number) {
+  const durationSeconds = duration / 1000;
+  const secondsPart = Math.floor(durationSeconds % 60);
+  const minutesPart = Math.floor((durationSeconds / 60) % 60);
+  const hoursPart = Math.floor(durationSeconds / 3600);
   return `${hoursPart < 10 ? '0' : ''}${hoursPart}:${
     minutesPart < 10 ? '0' : ''
   }${minutesPart}:${secondsPart < 10 ? '0' : ''}${secondsPart}`;
+}
+
+function getTimestampDifferenceString(later: number, earlier: number): string {
+  return formatDuration(later - earlier);
 }
 
 function createAndSelectNewTask(pullPath: string) {
