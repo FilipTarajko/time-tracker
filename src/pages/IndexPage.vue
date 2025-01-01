@@ -49,6 +49,15 @@
       </q-btn>
     </div>
     <div
+      v-if="entriesStore.ongoingEntry"
+      style="display: flex; gap: 1.6em; margin: auto; width: fit-content"
+    >
+      <EntryTimestamps :entry="entriesStore.ongoingEntry" />
+      <div class="entry-duration" style="width: 4em">
+        {{ ongoingEntryCurrentTime }}
+      </div>
+    </div>
+    <div
       v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
       :key="dateAndEntries[0]"
     >
@@ -88,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { Ref, ref } from 'vue';
+import { Ref, ref, watch } from 'vue';
 import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
@@ -126,6 +135,28 @@ function createAndSelectNewTask(pullPath: string) {
   const newTask = tasksStore.createAndStartNewTaskByPath(pullPath);
   tasksStore.handleCurrentTaskChange(newTask);
 }
+
+const ongoingEntryCurrentTime = ref('-');
+
+function updateOngoingEntryCurrentTime() {
+  if (entriesStore.ongoingEntry) {
+    ongoingEntryCurrentTime.value = getTimestampDifferenceString(
+      Date.now(),
+      entriesStore.ongoingEntry.startTime
+    );
+  } else {
+    ongoingEntryCurrentTime.value = '-';
+  }
+}
+
+setInterval(() => {
+  updateOngoingEntryCurrentTime();
+}, 100);
+
+watch(
+  () => entriesStore?.ongoingEntry?.startTime,
+  updateOngoingEntryCurrentTime
+);
 
 defineOptions({
   name: 'IndexPage',
