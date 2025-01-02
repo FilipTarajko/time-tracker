@@ -5,6 +5,13 @@ import { supabase } from 'src/lib/supabaseClient';
 
 import { Notify } from 'quasar';
 import { useTasksStore } from 'stores/tasksStore';
+import { useSettingsStore } from 'stores/settingsStore';
+import {
+  MILLISECONDS_IN_MINUTE,
+  MILLISECONDS_IN_HOUR,
+  MILLISECONDS_IN_DAY,
+  MINUTES_IN_HOUR,
+} from 'src/helpers/timeHelpers';
 
 export interface Entry {
   dbid?: string;
@@ -18,11 +25,20 @@ export interface Entry {
   // TODO: add last_edited
 }
 
+const settingsStore = useSettingsStore();
+
 export const useEntriesStore = defineStore('entries', () => {
   const entries = ref<Entry[]>([]);
 
+  function getLocalDateOfTimestampAccordingToSettings(timestamp: number) {
+    return date.formatDate(
+      new Date(timestamp - settingsStore.dayEndOffset * MILLISECONDS_IN_HOUR),
+      'YYYY-MM-DD'
+    );
+  }
+
   function getLocalDateOfEntry(entry: Entry) {
-    return date.formatDate(new Date(entry.startTime), 'YYYY-MM-DD');
+    return getLocalDateOfTimestampAccordingToSettings(entry.startTime);
   }
 
   const finishedEntriesWithDates = computed<Map<string, Entry[]>>(() => {
@@ -83,11 +99,8 @@ export const useEntriesStore = defineStore('entries', () => {
 
   function getMinuteOfDayFromHHmm(HHmm: string): number {
     const parts = HHmm.split(':');
-    return Number(parts[0]) * 60 + Number(parts[1]);
+    return MINUTES_IN_HOUR * Number(parts[0]) + Number(parts[1]);
   }
-
-  const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000;
-  const MILLISECONDS_IN_MINUTE = 60 * 1000;
 
   function updateTimestampOfEntry(
     entry: Entry,
@@ -180,5 +193,6 @@ export const useEntriesStore = defineStore('entries', () => {
     ongoingEntry,
     descriptionForNewEntry,
     getLocalDateOfEntry,
+    getLocalDateOfTimestampAccordingToSettings,
   };
 });

@@ -57,6 +57,25 @@
         {{ ongoingEntryCurrentTime }}
       </div>
     </div>
+    <div class="column q-my-lg q-mx-auto" style="max-width: 300px">
+      Settings
+      <q-input
+        label="day end offset (hours after midnight)"
+        type="number"
+        dense
+        min="0"
+        max="23"
+        v-model="settingsStore.dayEndOffset"
+      />
+      <q-checkbox v-model="settingsStore.goOver24WhenOffset"
+        >go over 24 when offset
+      </q-checkbox>
+      <q-checkbox
+        v-model="settingsStore.alsoGoOver24WhenMultiDay"
+        :disable="!settingsStore.goOver24WhenOffset"
+        >also go over 24 when multi day
+      </q-checkbox>
+    </div>
     <div
       v-for="dateAndEntries in entriesStore.finishedEntriesWithDates"
       :key="dateAndEntries[0]"
@@ -123,9 +142,17 @@ import EntryTimestamps from 'components/EntryTimestamps.vue';
 import EntryDescription from 'components/EntryDescription.vue';
 import SupabasePlayground from 'components/AuthComponent.vue';
 import { useAuthStore } from 'stores/authStore';
+import { useSettingsStore } from 'stores/settingsStore';
+import {
+  MILLISECONDS_IN_SECOND,
+  SECONDS_IN_MINUTE,
+  SECONDS_IN_HOUR,
+  MINUTES_IN_HOUR,
+} from 'src/helpers/timeHelpers';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
+const settingsStore = useSettingsStore();
 
 const filteredTasks: Ref<Task[]> = ref([]);
 
@@ -139,10 +166,12 @@ function filterTasksByName(val: string, update: (cb: () => void) => void) {
 }
 
 function formatDuration(duration: number) {
-  const durationSeconds = duration / 1000;
-  const secondsPart = Math.floor(durationSeconds % 60);
-  const minutesPart = Math.floor((durationSeconds / 60) % 60);
-  const hoursPart = Math.floor(durationSeconds / 3600);
+  const durationSeconds = duration / MILLISECONDS_IN_SECOND;
+  const secondsPart = Math.floor(durationSeconds % SECONDS_IN_MINUTE);
+  const minutesPart = Math.floor(
+    (durationSeconds / SECONDS_IN_MINUTE) % MINUTES_IN_HOUR
+  );
+  const hoursPart = Math.floor(durationSeconds / SECONDS_IN_HOUR);
   return `${hoursPart < 10 ? '0' : ''}${hoursPart}:${
     minutesPart < 10 ? '0' : ''
   }${minutesPart}:${secondsPart < 10 ? '0' : ''}${secondsPart}`;
