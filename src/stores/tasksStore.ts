@@ -22,6 +22,7 @@ export interface Task {
 
 export const useTasksStore = defineStore('tasks', () => {
   const tasks = ref<Task[]>([]);
+  const pickerRefreshCount = ref(0);
 
   const idToTaskMap = computed(() => {
     const result = new Map();
@@ -139,5 +140,6 @@ export const useTasksStore = defineStore('tasks', () => {
     currentTask,
     handleCurrentTaskChange,
     upsertTask,
+    pickerRefreshCount,
   };
 });

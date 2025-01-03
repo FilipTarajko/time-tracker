@@ -8,6 +8,7 @@
         v-model="tasksStore.currentTask"
         :options="filteredTasks"
         :option-label="(task) => tasksStore.generateLabel(task)"
+        :key="tasksStore.pickerRefreshCount"
         use-input
         hide-selected
         fill-input

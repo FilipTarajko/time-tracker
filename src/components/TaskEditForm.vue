@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { useTasksStore } from 'stores/tasksStore';
+import { watch } from 'vue';
+import TaskDisplay from 'components/TaskDisplay.vue';
 
 const props = defineProps<{
   editedTaskId: string;
@@ -19,12 +21,17 @@ function revertChanges() {
   editedTask.icon = previousState.icon;
   editedTask.imageSrc = previousState.imageSrc;
 }
+
+watch(
+  () => [editedTask.name, editedTask.parentTaskId],
+  () => {
+    tasksStore.pickerRefreshCount++;
+  }
+);
 </script>
 
 <template>
-  <div
-    style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px"
-  >
+  <div style="display: flex; flex-direction: column; gap: 8px">
     <q-input outlined v-model="editedTask.name" label="name" />
     <!--    TODO: add a select for this -->
     <!--    <q-input v-model="editedTask.parentTaskId" />-->
@@ -32,13 +39,37 @@ function revertChanges() {
     <q-input outlined v-model="editedTask.icon" label="icon" />
     <q-input outlined v-model="editedTask.imageSrc" label="image src" />
   </div>
-  <q-btn class="q-mr-md" @click="revertChanges" color="warning" v-close-popup
-    >cancel
-  </q-btn>
-  <q-btn
-    color="primary"
-    @click="tasksStore.upsertTask(editedTask)"
-    v-close-popup
-    >save
-  </q-btn>
+  <div class="q-mt-md">before</div>
+  <q-item
+    :style="{
+      backgroundColor: tasksStore.generateBackgroundColor(
+        JSON.parse(editedTaskBeforeChanges)
+      ),
+    }"
+    style="border: 1px solid #3333"
+    class="q-mt-sm"
+  >
+    <TaskDisplay :task="JSON.parse(editedTaskBeforeChanges)"></TaskDisplay>
+  </q-item>
+  <div class="q-mt-md q-mb">after</div>
+  <q-item
+    :style="{
+      backgroundColor: tasksStore.generateBackgroundColor(editedTask),
+    }"
+    style="border: 1px solid #3333"
+    class="q-mt-sm"
+  >
+    <TaskDisplay :task="editedTask"></TaskDisplay>
+  </q-item>
+  <div style="margin: 16px auto 0">
+    <q-btn class="q-mr-md" @click="revertChanges" color="warning" v-close-popup
+      >cancel
+    </q-btn>
+    <q-btn
+      color="primary"
+      @click="tasksStore.upsertTask(editedTask)"
+      v-close-popup
+      >save
+    </q-btn>
+  </div>
 </template>
