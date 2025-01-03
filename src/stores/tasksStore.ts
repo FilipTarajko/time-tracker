@@ -130,6 +130,21 @@ export const useTasksStore = defineStore('tasks', () => {
     task.dbid = data[0].dbid;
   }
 
+  function doesDependOn(checkedTask: Task, potentialAncestor: Task): boolean {
+    let traversedTask = checkedTask;
+    while (true) {
+      if (potentialAncestor.id == traversedTask.id) {
+        return true;
+      }
+
+      if (!traversedTask.parentTaskId) {
+        return false;
+      }
+
+      traversedTask = getTaskById(traversedTask.parentTaskId);
+    }
+  }
+
   return {
     tasks,
     getTaskById,
@@ -141,5 +156,6 @@ export const useTasksStore = defineStore('tasks', () => {
     handleCurrentTaskChange,
     upsertTask,
     pickerRefreshCount,
+    doesDependOn,
   };
 });

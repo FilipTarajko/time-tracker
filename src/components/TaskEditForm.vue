@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { useTasksStore } from 'stores/tasksStore';
-import { watch } from 'vue';
+import { ref, Ref, watch } from 'vue';
 import TaskDisplay from 'components/TaskDisplay.vue';
+import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 
 const props = defineProps<{
   editedTaskId: string;
@@ -22,6 +23,23 @@ function revertChanges() {
   editedTask.imageSrc = previousState.imageSrc;
 }
 
+const filteredTaskIds: Ref<string[]> = ref([]);
+
+function filterTasksByNameAndNotDependingOnEditedTask(
+  val: string,
+  update: (cb: () => void) => void
+) {
+  update(() => {
+    const needle = val.toLowerCase();
+    filteredTaskIds.value = tasksStore.tasks
+      .filter((task) =>
+        tasksStore.generateLabel(task).toLowerCase().includes(needle)
+      )
+      .filter((task) => !tasksStore.doesDependOn(task, editedTask))
+      .map((task) => task.id);
+  });
+}
+
 watch(
   () => [editedTask.name, editedTask.parentTaskId],
   () => {
@@ -33,8 +51,44 @@ watch(
 <template>
   <div style="display: flex; flex-direction: column; gap: 8px">
     <q-input outlined v-model="editedTask.name" label="name" />
-    <!--    TODO: add a select for this -->
-    <!--    <q-input v-model="editedTask.parentTaskId" />-->
+    <q-select
+      clearable
+      v-model="editedTask.parentTaskId"
+      :option-label="
+        (id) => tasksStore.generateLabel(tasksStore.getTaskById(id))
+      "
+      use-input
+      hide-selected
+      fill-input
+      :options="filteredTaskIds"
+      @filter="filterTasksByNameAndNotDependingOnEditedTask"
+      outlined
+      :style="{
+        backgroundColor: tasksStore.generateBackgroundColor(
+          editedTask?.parentTaskId &&
+            tasksStore.getTaskById(editedTask?.parentTaskId)
+        ),
+      }"
+    >
+      <template v-slot:prepend v-if="editedTask?.parentTaskId">
+        <TasksImgOrIcon
+          :task="tasksStore.getTaskById(editedTask.parentTaskId)"
+        ></TasksImgOrIcon>
+      </template>
+      <template v-slot:option="scope">
+        <q-item
+          v-bind="scope.itemProps"
+          :style="{
+            backgroundColor: tasksStore.generateBackgroundColor(
+              tasksStore.getTaskById(scope?.opt)
+            ),
+          }"
+          style="border-top: 1px solid #3333"
+        >
+          <TaskDisplay :task="tasksStore.getTaskById(scope.opt)"></TaskDisplay>
+        </q-item>
+      </template>
+    </q-select>
     <q-color v-model="editedTask.color" class="my-picker" />
     <q-input outlined v-model="editedTask.icon" label="icon" />
     <q-input outlined v-model="editedTask.imageSrc" label="image src" />
