@@ -21,9 +21,7 @@ export interface Task {
 // TODO: add actions and ui for editing tasks
 
 export const useTasksStore = defineStore('tasks', () => {
-  const tasks = ref<Task[]>(
-    []
-  );
+  const tasks = ref<Task[]>([]);
 
   const idToTaskMap = computed(() => {
     const result = new Map();
@@ -140,5 +138,6 @@ export const useTasksStore = defineStore('tasks', () => {
     initFromSupabase,
     currentTask,
     handleCurrentTaskChange,
+    upsertTask,
   };
 });

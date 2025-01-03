@@ -118,6 +118,7 @@
         <div class="description-and-style-container">
           <TaskDisplay
             :task="tasksStore.getTaskById(entry.taskId)"
+            @openTaskEditing="editedTaskId = entry.taskId"
           ></TaskDisplay>
           <EntryDescription :entry />
         </div>
@@ -129,11 +130,17 @@
         </div>
       </q-item>
     </div>
+
+    <q-dialog persistent v-if="editedTaskId" v-model="isTaskBeingEdited">
+      <q-card class="q-pa-lg" style="width: fit-content">
+        <TaskEditForm :editedTaskId />
+      </q-card>
+    </q-dialog>
   </template>
 </template>
 
 <script setup lang="ts">
-import { Ref, ref, watch } from 'vue';
+import { computed, Ref, ref, watch } from 'vue';
 import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
@@ -149,6 +156,7 @@ import {
   SECONDS_IN_HOUR,
   MINUTES_IN_HOUR,
 } from 'src/helpers/timeHelpers';
+import TaskEditForm from 'components/TaskEditForm.vue';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
@@ -207,6 +215,18 @@ watch(
   () => entriesStore?.ongoingEntry?.startTime,
   updateOngoingEntryCurrentTime
 );
+
+const editedTaskId: Ref<string | null> = ref(null);
+const isTaskBeingEdited = computed({
+  get() {
+    return editedTaskId.value !== null;
+  },
+  set(x) {
+    if (!x) {
+      editedTaskId.value = null;
+    }
+  },
+});
 
 defineOptions({
   name: 'IndexPage',
