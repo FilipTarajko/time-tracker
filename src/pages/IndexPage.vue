@@ -139,14 +139,21 @@
               justify-content: space-between;
             "
           >
-            <!--            <q-btn-->
-            <!--              flat-->
-            <!--              round-->
-            <!--              color="primary"-->
-            <!--              padding="0"-->
-            <!--              size="10px"-->
-            <!--              icon="play_arrow"-->
-            <!--            />-->
+            <q-btn
+              @click="
+                tasksStore.currentTask = tasksStore.getTaskById(entry.taskId);
+                entriesStore.updateDescriptionOfEntry(
+                  entriesStore.ongoingEntry!,
+                  entry.description
+                );
+              "
+              flat
+              round
+              color="primary"
+              padding="0"
+              size="10px"
+              icon="play_arrow"
+            />
             <q-btn
               @click="entryForDeletionConfirmation = entry"
               flat
