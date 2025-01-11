@@ -123,10 +123,39 @@
           ></TaskDisplay>
           <EntryDescription :entry />
         </div>
-        <div class="timestamps-and-duration-flex">
-          <EntryTimestamps :entry />
-          <div class="entry-duration" style="width: 4em">
-            {{ getTimestampDifferenceString(entry.endTime!, entry.startTime) }}
+        <div style="display: flex; flex-direction: row; gap: 1.6em">
+          <div class="timestamps-and-duration-flex">
+            <EntryTimestamps :entry />
+            <div class="entry-duration" style="width: fit-content">
+              {{
+                getTimestampDifferenceString(entry.endTime!, entry.startTime)
+              }}
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: space-between;
+            "
+          >
+            <!--            <q-btn-->
+            <!--              flat-->
+            <!--              round-->
+            <!--              color="primary"-->
+            <!--              padding="0"-->
+            <!--              size="10px"-->
+            <!--              icon="play_arrow"-->
+            <!--            />-->
+            <q-btn
+              @click="entryForDeletionConfirmation = entry"
+              flat
+              round
+              color="red"
+              padding="0"
+              size="10px"
+              icon="delete"
+            />
           </div>
         </div>
       </q-item>
@@ -137,6 +166,24 @@
         <TaskEditForm :editedTaskId />
       </q-card>
     </q-dialog>
+
+    <q-dialog
+      v-if="entryForDeletionConfirmation"
+      v-model="doesEntryForDeletionConfirmationExist"
+    >
+      <q-card class="q-pa-lg" style="width: fit-content">
+        <div class="q-mb-lg">
+          Are you sure? This will permanently delete the entry.
+        </div>
+        <q-btn color="warning" v-close-popup class="q-mr-md">cancel</q-btn>
+        <q-btn
+          color="red"
+          @click="entriesStore.deleteEntry(entryForDeletionConfirmation)"
+          v-close-popup
+          >delete entry
+        </q-btn>
+      </q-card>
+    </q-dialog>
   </template>
 </template>
 
@@ -144,7 +191,7 @@
 import { computed, Ref, ref, watch } from 'vue';
 import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
-import { useEntriesStore } from 'stores/entriesStore';
+import { Entry, useEntriesStore } from 'stores/entriesStore';
 import TaskDisplay from 'components/TaskDisplay.vue';
 import EntryTimestamps from 'components/EntryTimestamps.vue';
 import EntryDescription from 'components/EntryDescription.vue';
@@ -225,6 +272,18 @@ const isTaskBeingEdited = computed({
   set(x) {
     if (!x) {
       editedTaskId.value = null;
+    }
+  },
+});
+
+const entryForDeletionConfirmation: Ref<Entry | null> = ref(null);
+const doesEntryForDeletionConfirmationExist = computed({
+  get() {
+    return entryForDeletionConfirmation.value !== null;
+  },
+  set(x) {
+    if (!x) {
+      entryForDeletionConfirmation.value = null;
     }
   },
 });

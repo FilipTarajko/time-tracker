@@ -164,8 +164,24 @@ export const useEntriesStore = defineStore('entries', () => {
       return;
     }
 
-    Notify.create({ message: 'Upserted entries', type: 'positive' });
+    Notify.create({ message: 'Upserted entry', type: 'positive' });
     entry.dbid = data[0].dbid;
+  }
+
+  async function deleteEntry(entry: Entry) {
+    const { data, error } = await supabase
+      .from('entries')
+      .delete()
+      .eq('dbid', entry.dbid)
+      .select();
+
+    if (error) {
+      Notify.create({ message: error.message, type: 'negative' });
+      return;
+    }
+
+    Notify.create({ message: 'Deleted entry', type: 'positive' });
+    entries.value = entries.value.filter((e) => e.dbid != data[0].dbid);
   }
 
   const futureEntryDescription = ref('');
@@ -194,5 +210,6 @@ export const useEntriesStore = defineStore('entries', () => {
     descriptionForNewEntry,
     getLocalDateOfEntry,
     getLocalDateOfTimestampAccordingToSettings,
+    deleteEntry,
   };
 });
