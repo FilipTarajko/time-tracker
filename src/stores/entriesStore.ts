@@ -30,6 +30,8 @@ const settingsStore = useSettingsStore();
 export const useEntriesStore = defineStore('entries', () => {
   const entries = ref<Entry[]>([]);
 
+  const tasksStore = useTasksStore();
+
   function getLocalDateOfTimestampAccordingToSettings(timestamp: number) {
     return date.formatDate(
       new Date(timestamp - settingsStore.dayEndOffset * MILLISECONDS_IN_HOUR),
@@ -82,7 +84,7 @@ export const useEntriesStore = defineStore('entries', () => {
       description:
         description ??
         (descriptionForNewEntry.value ||
-          useTasksStore().getTaskById(taskId).defaultDescription),
+          tasksStore.getTaskById(taskId).defaultDescription),
       startTime: new Date().getTime(),
       endTime: null,
     };
@@ -198,6 +200,12 @@ export const useEntriesStore = defineStore('entries', () => {
     },
   });
 
+  async function startCopyOfEntry(entry: Entry) {
+    endOngoingEntry();
+    futureEntryDescription.value = entry.description;
+    tasksStore.currentTask = tasksStore.getTaskById(entry.taskId);
+  }
+
   return {
     entries,
     finishedEntriesWithDates,
@@ -211,5 +219,6 @@ export const useEntriesStore = defineStore('entries', () => {
     getLocalDateOfEntry,
     getLocalDateOfTimestampAccordingToSettings,
     deleteEntry,
+    startCopyOfEntry,
   };
 });

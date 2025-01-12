@@ -140,13 +140,7 @@
             "
           >
             <q-btn
-              @click="
-                tasksStore.currentTask = tasksStore.getTaskById(entry.taskId);
-                entriesStore.updateDescriptionOfEntry(
-                  entriesStore.ongoingEntry!,
-                  entry.description
-                );
-              "
+              @click="entriesStore.startCopyOfEntry(entry)"
               flat
               round
               color="primary"
