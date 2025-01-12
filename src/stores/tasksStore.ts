@@ -145,6 +145,12 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
+  const tasksList = computed<Task[]>(()=> {
+    // TODO: wouldn't it be better to count by grouping all entries instead?
+    const sortedTasks = tasks.value.sort((a, b) => useEntriesStore().countEntriesByTask(b) - useEntriesStore().countEntriesByTask(a))
+    return sortedTasks.slice(0, 6);
+  });
+
   return {
     tasks,
     getTaskById,
@@ -157,5 +163,6 @@ export const useTasksStore = defineStore('tasks', () => {
     upsertTask,
     pickerRefreshCount,
     doesDependOn,
+    tasksList,
   };
 });

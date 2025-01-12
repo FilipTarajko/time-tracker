@@ -4,7 +4,7 @@ import { date } from 'quasar';
 import { supabase } from 'src/lib/supabaseClient';
 
 import { Notify } from 'quasar';
-import { useTasksStore } from 'stores/tasksStore';
+import { Task, useTasksStore } from 'stores/tasksStore';
 import { useSettingsStore } from 'stores/settingsStore';
 import {
   MILLISECONDS_IN_MINUTE,
@@ -206,6 +206,10 @@ export const useEntriesStore = defineStore('entries', () => {
     tasksStore.currentTask = tasksStore.getTaskById(entry.taskId);
   }
 
+  function countEntriesByTask(task: Task) {
+    return entries.value.filter((entry) => entry.taskId === task.id).length;
+  }
+
   return {
     entries,
     finishedEntriesWithDates,
@@ -220,5 +224,6 @@ export const useEntriesStore = defineStore('entries', () => {
     getLocalDateOfTimestampAccordingToSettings,
     deleteEntry,
     startCopyOfEntry,
+    countEntriesByTask,
   };
 });

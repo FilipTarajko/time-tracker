@@ -1,8 +1,32 @@
 <template>
   <Suspense>
+    <!-- TODO: adjust this "temporary" solution -->
     <SupabasePlayground />
   </Suspense>
   <template v-if="useAuthStore().isLoggedIn">
+    Shortcuts
+    <div v-if="tasksStore.tasks.length == 0">
+      Shortcuts will appear once a task is created.
+    </div>
+    <div
+      style="
+        gap: 2px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      "
+    >
+      <div
+        @click="tasksStore.currentTask = task"
+        v-for="task in tasksStore.tasksList"
+        :key="task.id"
+        :style="{
+          backgroundColor: tasksStore.generateBackgroundColor(task),
+        }"
+        style="border: 1px solid #3333; cursor: pointer; padding: 8px 12px"
+      >
+        <TaskDisplay :task="task"></TaskDisplay>
+      </div>
+    </div>
     <div class="current-entry">
       <q-select
         v-model="tasksStore.currentTask"
