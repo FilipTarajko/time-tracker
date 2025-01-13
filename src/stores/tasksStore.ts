@@ -151,6 +151,11 @@ export const useTasksStore = defineStore('tasks', () => {
     return sortedTasks.slice(0, 6);
   });
 
+  function createAndSelectNewTask(pullPath: string) {
+    const newTask = createAndStartNewTaskByPath(pullPath);
+    handleCurrentTaskChange(newTask);
+  }
+
   return {
     tasks,
     getTaskById,
@@ -164,5 +169,6 @@ export const useTasksStore = defineStore('tasks', () => {
     pickerRefreshCount,
     doesDependOn,
     tasksList,
+    createAndSelectNewTask,
   };
 });
