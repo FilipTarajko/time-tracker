@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, Ref, ref } from 'vue';
 import { supabase } from 'src/lib/supabaseClient';
 import { useEntriesStore } from 'stores/entriesStore';
 import { Notify } from 'quasar';
@@ -156,6 +156,18 @@ export const useTasksStore = defineStore('tasks', () => {
     handleCurrentTaskChange(newTask);
   }
 
+  const editedTaskId: Ref<string | null> = ref(null);
+  const isTaskBeingEdited = computed({
+    get() {
+      return editedTaskId.value !== null;
+    },
+    set(x) {
+      if (!x) {
+        editedTaskId.value = null;
+      }
+    },
+  });
+
   return {
     tasks,
     getTaskById,
@@ -170,5 +182,7 @@ export const useTasksStore = defineStore('tasks', () => {
     doesDependOn,
     tasksList,
     createAndSelectNewTask,
+    editedTaskId,
+    isTaskBeingEdited,
   };
 });

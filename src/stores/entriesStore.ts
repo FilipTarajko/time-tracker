@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, ref } from 'vue';
+import { computed, Ref, ref } from 'vue';
 import { date } from 'quasar';
 import { supabase } from 'src/lib/supabaseClient';
 
@@ -210,6 +210,18 @@ export const useEntriesStore = defineStore('entries', () => {
     return entries.value.filter((entry) => entry.taskId === task.id).length;
   }
 
+  const entryForDeletionConfirmation: Ref<Entry | null> = ref(null);
+  const doesEntryForDeletionConfirmationExist = computed({
+    get() {
+      return entryForDeletionConfirmation.value !== null;
+    },
+    set(x) {
+      if (!x) {
+        entryForDeletionConfirmation.value = null;
+      }
+    },
+  });
+
   return {
     entries,
     finishedEntriesWithDates,
@@ -225,5 +237,7 @@ export const useEntriesStore = defineStore('entries', () => {
     deleteEntry,
     startCopyOfEntry,
     countEntriesByTask,
+    entryForDeletionConfirmation,
+    doesEntryForDeletionConfirmationExist,
   };
 });
