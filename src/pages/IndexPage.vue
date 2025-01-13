@@ -199,6 +199,52 @@
       <q-card class="q-pa-lg" style="width: fit-content">
         <div class="q-mb-lg">
           Are you sure? This will permanently delete the entry.
+          <q-item
+            :style="{
+              backgroundColor: tasksStore.generateBackgroundColor(
+                tasksStore.getTaskById(entryForDeletionConfirmation.taskId)
+              ),
+            }"
+            style="
+              border: 1px solid #3333;
+              display: grid;
+              grid-template-columns: 1fr auto;
+              pointer-events: none;
+            "
+            class="q-mt-sm"
+          >
+            <div class="description-and-style-container">
+              <TaskDisplay
+                :task="
+                  tasksStore.getTaskById(entryForDeletionConfirmation.taskId)
+                "
+                @openTaskEditing="
+                  editedTaskId = entryForDeletionConfirmation.taskId
+                "
+              ></TaskDisplay>
+              <EntryDescription :entry="entryForDeletionConfirmation" />
+            </div>
+            <div style="display: flex; flex-direction: row; gap: 1.6em">
+              <div class="timestamps-and-duration-flex">
+                <EntryTimestamps :entry="entryForDeletionConfirmation" />
+                <div class="entry-duration" style="width: fit-content">
+                  {{
+                    getTimestampDifferenceString(
+                      entryForDeletionConfirmation.endTime!,
+                      entryForDeletionConfirmation.startTime
+                    )
+                  }}
+                </div>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  flex-direction: column;
+                  justify-content: space-between;
+                "
+              ></div>
+            </div>
+          </q-item>
         </div>
         <q-btn color="warning" v-close-popup class="q-mr-md">cancel</q-btn>
         <q-btn
