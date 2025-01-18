@@ -2,48 +2,57 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-toolbar class="width-limiter-parent">
-        <div>
+        <div style="display: flex; align-items: baseline; gap: 20px">
+          <!--        <q-btn-->
+          <!--          flat-->
+          <!--          dense-->
+          <!--          round-->
+          <!--          icon="menu"-->
+          <!--          aria-label="Menu"-->
+          <!--          @click="toggleLeftDrawer"-->
+          <!--        />-->
 
-<!--        <q-btn-->
-<!--          flat-->
-<!--          dense-->
-<!--          round-->
-<!--          icon="menu"-->
-<!--          aria-label="Menu"-->
-<!--          @click="toggleLeftDrawer"-->
-<!--        />-->
+          <q-toolbar-title>
+            <router-link :to="{ name: 'index' }">
+              {{ productName }}
+            </router-link>
+          </q-toolbar-title>
 
-        <q-toolbar-title>
-          {{ productName }}
-        </q-toolbar-title>
+          <router-link :to="{ name: 'index' }">entries</router-link>
+          <router-link :to="{ name: 'stats' }">stats</router-link>
+          <router-link :to="{ name: 'settings' }">settings</router-link>
 
-<!--        <div>Quasar v{{ $q.version }}</div>-->
+          <!--        <div>Quasar v{{ $q.version }}</div>-->
         </div>
       </q-toolbar>
     </q-header>
 
-<!--    <q-drawer-->
-<!--      v-model="leftDrawerOpen"-->
-<!--      show-if-above-->
-<!--      bordered-->
-<!--    >-->
-<!--      <q-list>-->
-<!--        <q-item-label-->
-<!--          header-->
-<!--        >-->
-<!--          Navigation-->
-<!--        </q-item-label>-->
+    <!--    <q-drawer-->
+    <!--      v-model="leftDrawerOpen"-->
+    <!--      show-if-above-->
+    <!--      bordered-->
+    <!--    >-->
+    <!--      <q-list>-->
+    <!--        <q-item-label-->
+    <!--          header-->
+    <!--        >-->
+    <!--          Navigation-->
+    <!--        </q-item-label>-->
 
-<!--        <NavigationLink-->
-<!--          v-for="link in linksList"-->
-<!--          :key="link.title"-->
-<!--          v-bind="link"-->
-<!--        />-->
-<!--      </q-list>-->
-<!--    </q-drawer>-->
+    <!--        <NavigationLink-->
+    <!--          v-for="link in linksList"-->
+    <!--          :key="link.title"-->
+    <!--          v-bind="link"-->
+    <!--        />-->
+    <!--      </q-list>-->
+    <!--    </q-drawer>-->
 
     <q-page-container class="width-limiter-parent">
       <q-page class="q-mt-sm">
+        <Suspense>
+          <!-- TODO: adjust this "temporary" solution -->
+          <SupabasePlayground />
+        </Suspense>
         <router-view />
       </q-page>
     </q-page-container>
@@ -52,9 +61,10 @@
 
 <script setup lang="ts">
 import { productName } from '../../package.json';
+import SupabasePlayground from 'components/AuthComponent.vue';
 
 defineOptions({
-  name: 'MainLayout'
+  name: 'MainLayout',
 });
 
 // const linksList: NavigationLinkProps[] = [
@@ -74,15 +84,20 @@ defineOptions({
 </script>
 
 <style lang="scss">
-  .width-limiter-parent {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-around;
-    padding: 0 12px;
+.width-limiter-parent {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  padding: 0 12px;
 
-    & > :first-child {
-      max-width: 1000px;
-      width: 100%;
-    }
+  & > :first-child {
+    max-width: 1000px;
+    width: 100%;
   }
+}
+
+a {
+  color: white;
+  text-decoration: none;
+}
 </style>

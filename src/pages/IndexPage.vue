@@ -1,12 +1,7 @@
 <template>
-  <Suspense>
-    <!-- TODO: adjust this "temporary" solution -->
-    <SupabasePlayground />
-  </Suspense>
   <template v-if="useAuthStore().isLoggedIn">
     <ShortcutsComponent />
     <CurrentEntry />
-    <SettingsComponent />
     <FinishedEntries />
     <TaskEditDialog />
     <TaskDeletionConfirmationDialog />
@@ -14,11 +9,9 @@
 </template>
 
 <script setup lang="ts">
-import SupabasePlayground from 'components/AuthComponent.vue';
 import { useAuthStore } from 'stores/authStore';
 import ShortcutsComponent from 'components/ShortcutsComponent.vue';
 import CurrentEntry from 'components/CurrentEntry.vue';
-import SettingsComponent from 'components/SettingsComponent.vue';
 import FinishedEntries from 'components/FinishedEntries.vue';
 import TaskEditDialog from 'components/TaskEditDialog.vue';
 import TaskDeletionConfirmationDialog from 'components/TaskDeletionConfirmationDialog.vue';
