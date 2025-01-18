@@ -1,14 +1,22 @@
 <script setup lang="ts">
-
-import { formatDuration, getTimestampDifferenceString } from 'src/helpers/timeHelpers';
+import {
+  formatDuration,
+  getTimestampDifferenceString,
+} from 'src/helpers/timeHelpers';
 import EntryTimestamps from 'components/EntryTimestamps.vue';
 import TaskDisplay from 'components/TaskDisplay.vue';
 import EntryDescription from 'components/EntryDescription.vue';
 import { useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
+import { ref } from 'vue';
 
 const entriesStore = useEntriesStore();
 const tasksStore = useTasksStore();
+
+const now = ref(Date.now());
+setInterval(() => {
+  now.value = Date.now();
+}, 1000);
 </script>
 
 <template>
@@ -27,11 +35,11 @@ const tasksStore = useTasksStore();
               (total, entry) => total + entry.endTime! - entry.startTime,
               0
             ) +
-            (entriesStore.ongoingEntry &&
-            entriesStore.getLocalDateOfEntry(entriesStore.ongoingEntry) ==
-            dateAndEntries[0]
-              ? Date.now() - entriesStore.ongoingEntry.startTime
-              : 0)
+              (entriesStore.ongoingEntry &&
+              entriesStore.getLocalDateOfEntry(entriesStore.ongoingEntry) ==
+                dateAndEntries[0]
+                ? now - entriesStore.ongoingEntry.startTime
+                : 0)
           )
         }}
       </div>
@@ -40,15 +48,15 @@ const tasksStore = useTasksStore();
       v-for="entry in dateAndEntries[1]"
       :key="entry.id"
       :style="{
-          backgroundColor: tasksStore.generateBackgroundColor(
-            tasksStore.getTaskById(entry.taskId)
-          ),
-        }"
+        backgroundColor: tasksStore.generateBackgroundColor(
+          tasksStore.getTaskById(entry.taskId)
+        ),
+      }"
       style="
-          border: 1px solid #3333;
-          display: grid;
-          grid-template-columns: 1fr auto;
-        "
+        border: 1px solid #3333;
+        display: grid;
+        grid-template-columns: 1fr auto;
+      "
       class="q-mt-sm"
     >
       <div class="description-and-style-container">
@@ -62,17 +70,15 @@ const tasksStore = useTasksStore();
         <div class="timestamps-and-duration-flex">
           <EntryTimestamps :entry />
           <div class="entry-duration" style="width: fit-content">
-            {{
-              getTimestampDifferenceString(entry.endTime!, entry.startTime)
-            }}
+            {{ getTimestampDifferenceString(entry.endTime!, entry.startTime) }}
           </div>
         </div>
         <div
           style="
-              display: flex;
-              flex-direction: column;
-              justify-content: space-between;
-            "
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+          "
         >
           <q-btn
             @click="entriesStore.startCopyOfEntry(entry)"
@@ -97,7 +103,3 @@ const tasksStore = useTasksStore();
     </q-item>
   </div>
 </template>
-
-<style scoped lang="scss">
-
-</style>
