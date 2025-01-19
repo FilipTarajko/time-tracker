@@ -3,7 +3,6 @@ import { ref } from 'vue';
 import { useAuthStore } from 'stores/authStore';
 
 const authStore = useAuthStore();
-await authStore.initFromSupabase();
 
 const email = ref('a@a.a');
 const password = ref('abcdef');

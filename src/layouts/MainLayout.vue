@@ -21,6 +21,7 @@
           <router-link :to="{ name: 'index' }">entries</router-link>
           <router-link :to="{ name: 'stats' }">stats</router-link>
           <router-link :to="{ name: 'settings' }">settings</router-link>
+          <router-link :to="{ name: 'account' }">account</router-link>
 
           <!--        <div>Quasar v{{ $q.version }}</div>-->
         </div>
@@ -49,11 +50,22 @@
 
     <q-page-container class="width-limiter-parent">
       <q-page class="q-mt-sm">
-        <Suspense>
-          <!-- TODO: adjust this "temporary" solution -->
-          <SupabasePlayground />
-        </Suspense>
-        <router-view />
+        <router-view v-if="authStore.isLoggedIn" />
+        <template v-else>
+          <div
+            v-if="routeName !== 'account'"
+            style="width: fit-content; margin: 10px auto; color: red"
+          >
+            {{
+              `Log in to view the ${
+                routeName && typeof routeName === 'string'
+                  ? routeName + ' '
+                  : ''
+              }page.`
+            }}
+          </div>
+          <account-page />
+        </template>
       </q-page>
     </q-page-container>
   </q-layout>
@@ -61,10 +73,23 @@
 
 <script setup lang="ts">
 import { productName } from '../../package.json';
-import SupabasePlayground from 'components/AuthComponent.vue';
 
 defineOptions({
   name: 'MainLayout',
+});
+
+import { useAuthStore } from 'stores/authStore';
+import AccountPage from 'pages/AccountPage.vue';
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+
+// TODO: where should this actually be?
+const authStore = useAuthStore();
+authStore.initFromSupabase();
+
+const route = useRoute();
+const routeName = computed(() => {
+  return route.name;
 });
 
 // const linksList: NavigationLinkProps[] = [
