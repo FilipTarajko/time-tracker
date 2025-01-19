@@ -7,14 +7,14 @@ const tasksStore = useTasksStore();
 
 <template>
   <q-dialog
-    v-if="tasksStore.taskForFilteredList"
-    v-model="tasksStore.doesTaskForFilteredListExist"
+    v-if="tasksStore.taskForFilteredEntriesList"
+    v-model="tasksStore.doesTaskForFilteredEntriesListExist"
   >
     <q-card class="q-pa-lg" style="max-width: 500px; width: 100%">
-      <div>entries for task {{ tasksStore.taskForFilteredList.name }}</div>
+      entries for task {{ tasksStore.taskForFilteredEntriesList.name }}
       <EntriesList
         display-ongoing
-        :filter-by-task="tasksStore.taskForFilteredList"
+        :filter-by-task="tasksStore.taskForFilteredEntriesList"
       />
     </q-card>
   </q-dialog>

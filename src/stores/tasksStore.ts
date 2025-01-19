@@ -200,14 +200,26 @@ export const useTasksStore = defineStore('tasks', () => {
     tasks.value = tasks.value.filter((t) => t.dbid != data[0].dbid);
   }
 
-  const taskForFilteredList: Ref<Task | null> = ref(null);
-  const doesTaskForFilteredListExist = computed({
+  const taskForFilteredEntriesList: Ref<Task | null> = ref(null);
+  const doesTaskForFilteredEntriesListExist = computed({
     get() {
-      return taskForFilteredList.value !== null;
+      return taskForFilteredEntriesList.value !== null;
     },
     set(x) {
       if (!x) {
-        taskForFilteredList.value = null;
+        taskForFilteredEntriesList.value = null;
+      }
+    },
+  });
+
+  const taskForFilteredTasksList: Ref<Task | null> = ref(null);
+  const doesTaskForFilteredTasksListExist = computed({
+    get() {
+      return taskForFilteredTasksList.value !== null;
+    },
+    set(x) {
+      if (!x) {
+        taskForFilteredTasksList.value = null;
       }
     },
   });
@@ -231,7 +243,9 @@ export const useTasksStore = defineStore('tasks', () => {
     taskForDeletionConfirmation,
     doesTaskForDeletionConfirmationExist,
     deleteTask,
-    taskForFilteredList,
-    doesTaskForFilteredListExist,
+    taskForFilteredEntriesList,
+    doesTaskForFilteredEntriesListExist,
+    taskForFilteredTasksList,
+    doesTaskForFilteredTasksListExist,
   };
 });
