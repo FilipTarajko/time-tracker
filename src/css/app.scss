@@ -8,3 +8,25 @@
 .q-item {
   padding: 8px 12px;
 }
+
+.description-and-style-container {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 2px;
+
+  @media (width >= 500px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+}
+
+.timestamps-and-duration-flex {
+  justify-items: end;
+
+  @media (width >= 600px) {
+    display: flex;
+    flex-direction: row;
+    gap: 1.6em;
+  }
+}

@@ -10,7 +10,13 @@ export const MILLISECONDS_IN_MINUTE =
 export const MILLISECONDS_IN_HOUR = MILLISECONDS_IN_MINUTE * MINUTES_IN_HOUR;
 export const MILLISECONDS_IN_DAY = MILLISECONDS_IN_HOUR * HOURS_IN_DAY;
 
-export function getTimestampDifferenceString(later: number, earlier: number): string {
+export function getTimestampDifferenceString(
+  later: number | undefined,
+  earlier: number
+): string {
+  if (!later) {
+    return 'ongoing';
+  }
   return formatDuration(later - earlier);
 }
 

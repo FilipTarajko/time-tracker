@@ -4,6 +4,8 @@ import TaskDisplay from 'components/TaskDisplay.vue';
 import TaskEditDialog from 'components/TaskEditDialog.vue';
 import TaskDeletionConfirmationDialog from 'components/TaskDeletionConfirmationDialog.vue';
 import { useEntriesStore } from 'stores/entriesStore';
+import TasksEntriesListDialog from 'components/TasksEntriesListDialog.vue';
+import EntryDeletionConfirmationDialog from 'components/EntryDeletionConfirmationDialog.vue';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
@@ -24,7 +26,6 @@ const entriesStore = useEntriesStore();
       <div style="text-align: center; width: 100%">entries</div>
       <div style="text-align: center; width: 100%">child tasks</div>
       <div style="text-align: center; width: 100%">delete</div>
-      <!--      TODO: make order consistent, or add sorting options -->
       <template v-for="task in tasksStore.tasks" :key="task.id">
         <q-item
           :style="{
@@ -40,12 +41,21 @@ const entriesStore = useEntriesStore();
             @openTaskEditing="tasksStore.editedTaskId = task.id"
           ></TaskDisplay>
         </q-item>
-        <div>
+        <q-btn
+          padding="0"
+          style="width: 5ch"
+          color="primary"
+          @click="tasksStore.taskForFilteredList = task"
+          :disabled="
+            !entriesStore.entries.filter((entry) => entry.taskId === task.id)
+              .length
+          "
+        >
           {{
             entriesStore.entries.filter((entry) => entry.taskId === task.id)
               .length
           }}
-        </div>
+        </q-btn>
         <div>
           {{
             tasksStore.tasks.filter(
@@ -75,6 +85,8 @@ const entriesStore = useEntriesStore();
   </div>
   <TaskEditDialog />
   <TaskDeletionConfirmationDialog />
+  <TasksEntriesListDialog />
+  <EntryDeletionConfirmationDialog />
 </template>
 
 <style scoped lang="scss"></style>

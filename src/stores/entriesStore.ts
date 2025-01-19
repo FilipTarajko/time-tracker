@@ -43,25 +43,6 @@ export const useEntriesStore = defineStore('entries', () => {
     return getLocalDateOfTimestampAccordingToSettings(entry.startTime);
   }
 
-  const finishedEntriesWithDates = computed<Map<string, Entry[]>>(() => {
-    const finishedEntries = entries.value
-      .sort((a, b) => b.startTime - a.startTime)
-      .filter((entry) => entry.endTime);
-    const dates: Map<string, Entry[]> = new Map();
-
-    for (let i = 0; i < finishedEntries.length; i++) {
-      const entry = finishedEntries[i];
-      const dateOfThisEntry = getLocalDateOfEntry(entry);
-      if (dates.has(dateOfThisEntry)) {
-        dates.set(dateOfThisEntry, [...dates.get(dateOfThisEntry)!, entry]);
-      } else {
-        dates.set(dateOfThisEntry, [entry]);
-      }
-    }
-
-    return dates;
-  });
-
   const ongoingEntry = computed<Entry | null>(() => {
     return entries.value.find((entry) => !entry.endTime) ?? null;
   });
@@ -224,7 +205,6 @@ export const useEntriesStore = defineStore('entries', () => {
 
   return {
     entries,
-    finishedEntriesWithDates,
     startNewEntry,
     updateDescriptionOfEntry,
     updateTimestampOfEntry,

@@ -27,7 +27,7 @@
       {{
         entry.endTime
           ? formatTimestampAccordingToSettings(entry.endTime, entry.startTime)
-          : 'ongoing'
+          : '&nbsp;&nbsp;&nbsp;now'
       }}
       <q-popup-proxy
         v-if="entry.endTime"
