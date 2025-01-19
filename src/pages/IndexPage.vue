@@ -14,7 +14,7 @@ import ShortcutsComponent from 'components/ShortcutsComponent.vue';
 import CurrentEntry from 'components/CurrentEntry.vue';
 import FinishedEntries from 'components/FinishedEntries.vue';
 import TaskEditDialog from 'components/TaskEditDialog.vue';
-import TaskDeletionConfirmationDialog from 'components/TaskDeletionConfirmationDialog.vue';
+import TaskDeletionConfirmationDialog from 'components/EntryDeletionConfirmationDialog.vue';
 
 defineOptions({
   name: 'IndexPage',

@@ -10,38 +10,25 @@ const routes: RouteRecordRaw[] = [
         path: '',
         component: () => import('pages/IndexPage.vue'),
       },
-    ],
-  },
-  {
-    path: '/stats',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
       {
         name: 'stats',
-        path: '',
+        path: '/stats',
         component: () => import('pages/StatsPage.vue'),
       },
-    ],
-  },
-  {
-    path: '/settings',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
       {
         name: 'settings',
-        path: '',
+        path: '/settings',
         component: () => import('pages/SettingsPage.vue'),
       },
-    ],
-  },
-  {
-    path: '/account',
-    component: () => import('layouts/MainLayout.vue'),
-    children: [
       {
         name: 'account',
-        path: '',
+        path: '/account',
         component: () => import('pages/AccountPage.vue'),
+      },
+      {
+        name: 'tasks',
+        path: '/tasks',
+        component: () => import('pages/TasksPage.vue'),
       },
     ],
   },

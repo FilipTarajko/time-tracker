@@ -1,29 +1,22 @@
 <script setup lang="ts">
-import { getTimestampDifferenceString } from 'src/helpers/timeHelpers';
-import EntryTimestamps from 'components/EntryTimestamps.vue';
 import TaskDisplay from 'components/TaskDisplay.vue';
-import EntryDescription from 'components/EntryDescription.vue';
 import { useTasksStore } from 'stores/tasksStore';
-import { useEntriesStore } from 'stores/entriesStore';
 
 const tasksStore = useTasksStore();
-const entriesStore = useEntriesStore();
 </script>
 
 <template>
   <q-dialog
-    v-if="entriesStore.entryForDeletionConfirmation"
-    v-model="entriesStore.doesEntryForDeletionConfirmationExist"
+    v-if="tasksStore.taskForDeletionConfirmation"
+    v-model="tasksStore.doesTaskForDeletionConfirmationExist"
   >
     <q-card class="q-pa-lg" style="width: fit-content">
       <div class="q-mb-lg">
-        Are you sure? This will permanently delete the entry.
+        Are you sure? This will permanently delete the task.
         <q-item
           :style="{
             backgroundColor: tasksStore.generateBackgroundColor(
-              tasksStore.getTaskById(
-                entriesStore.entryForDeletionConfirmation.taskId
-              )
+              tasksStore.taskForDeletionConfirmation
             ),
           }"
           style="
@@ -36,52 +29,17 @@ const entriesStore = useEntriesStore();
         >
           <div class="description-and-style-container">
             <TaskDisplay
-              :task="
-                tasksStore.getTaskById(
-                  entriesStore.entryForDeletionConfirmation.taskId
-                )
-              "
-              @openTaskEditing="
-                tasksStore.editedTaskId =
-                  entriesStore.entryForDeletionConfirmation.taskId
-              "
+              :task="tasksStore.taskForDeletionConfirmation"
             ></TaskDisplay>
-            <EntryDescription
-              :entry="entriesStore.entryForDeletionConfirmation"
-            />
-          </div>
-          <div style="display: flex; flex-direction: row; gap: 1.6em">
-            <div class="timestamps-and-duration-flex">
-              <EntryTimestamps
-                :entry="entriesStore.entryForDeletionConfirmation"
-              />
-              <div class="entry-duration" style="width: fit-content">
-                {{
-                  getTimestampDifferenceString(
-                    entriesStore.entryForDeletionConfirmation.endTime!,
-                    entriesStore.entryForDeletionConfirmation.startTime
-                  )
-                }}
-              </div>
-            </div>
-            <div
-              style="
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-              "
-            ></div>
           </div>
         </q-item>
       </div>
       <q-btn color="warning" v-close-popup class="q-mr-md">cancel</q-btn>
       <q-btn
         color="red"
-        @click="
-          entriesStore.deleteEntry(entriesStore.entryForDeletionConfirmation)
-        "
+        @click="tasksStore.deleteTask(tasksStore.taskForDeletionConfirmation)"
         v-close-popup
-        >delete entry
+        >delete task
       </q-btn>
     </q-card>
   </q-dialog>

@@ -145,9 +145,13 @@ export const useTasksStore = defineStore('tasks', () => {
     }
   }
 
-  const tasksList = computed<Task[]>(()=> {
+  const tasksList = computed<Task[]>(() => {
     // TODO: wouldn't it be better to count by grouping all entries instead?
-    const sortedTasks = tasks.value.sort((a, b) => useEntriesStore().countEntriesByTask(b) - useEntriesStore().countEntriesByTask(a))
+    const sortedTasks = tasks.value.toSorted(
+      (a, b) =>
+        useEntriesStore().countEntriesByTask(b) -
+        useEntriesStore().countEntriesByTask(a)
+    );
     return sortedTasks.slice(0, 6);
   });
 
@@ -168,6 +172,34 @@ export const useTasksStore = defineStore('tasks', () => {
     },
   });
 
+  const taskForDeletionConfirmation: Ref<Task | null> = ref(null);
+  const doesTaskForDeletionConfirmationExist = computed({
+    get() {
+      return taskForDeletionConfirmation.value !== null;
+    },
+    set(x) {
+      if (!x) {
+        taskForDeletionConfirmation.value = null;
+      }
+    },
+  });
+
+  async function deleteTask(task: Task) {
+    const { data, error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('dbid', task.dbid)
+      .select();
+
+    if (error) {
+      Notify.create({ message: error.message, type: 'negative' });
+      return;
+    }
+
+    Notify.create({ message: 'Deleted task', type: 'positive' });
+    tasks.value = tasks.value.filter((t) => t.dbid != data[0].dbid);
+  }
+
   return {
     tasks,
     getTaskById,
@@ -184,5 +216,8 @@ export const useTasksStore = defineStore('tasks', () => {
     createAndSelectNewTask,
     editedTaskId,
     isTaskBeingEdited,
+    taskForDeletionConfirmation,
+    doesTaskForDeletionConfirmationExist,
+    deleteTask,
   };
 });

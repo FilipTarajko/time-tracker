@@ -19,6 +19,7 @@
           </q-toolbar-title>
 
           <router-link :to="{ name: 'index' }">entries</router-link>
+          <router-link :to="{ name: 'tasks' }">tasks</router-link>
           <router-link :to="{ name: 'stats' }">stats</router-link>
           <router-link :to="{ name: 'settings' }">settings</router-link>
           <router-link :to="{ name: 'account' }">account</router-link>
