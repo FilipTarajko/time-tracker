@@ -69,6 +69,18 @@ export const useTasksStore = defineStore('tasks', () => {
     return result.reverse().join('::');
   }
 
+  function getNumberOfAncestors(originalTask: Task): number {
+    let traversedTask = originalTask;
+    let result = 0;
+    while (traversedTask.parentTaskId) {
+      traversedTask = tasks.value.find(
+        (task) => task.id === traversedTask.parentTaskId
+      )!;
+      result++;
+    }
+    return result;
+  }
+
   function generateBackgroundColor(task?: Task): string | null {
     return (task?.color ?? '#ffffff') + TASK_COLOR_OPACITY_HEX;
   }
@@ -224,6 +236,10 @@ export const useTasksStore = defineStore('tasks', () => {
     },
   });
 
+  const highestNumberOfAncestors = computed(() => {
+    return Math.max(...tasks.value.map((task) => getNumberOfAncestors(task)));
+  });
+
   return {
     tasks,
     getTaskById,
@@ -247,5 +263,7 @@ export const useTasksStore = defineStore('tasks', () => {
     doesTaskForFilteredEntriesListExist,
     taskForFilteredTasksList,
     doesTaskForFilteredTasksListExist,
+    getNumberOfAncestors,
+    highestNumberOfAncestors,
   };
 });

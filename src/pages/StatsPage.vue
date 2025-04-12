@@ -6,7 +6,7 @@ import TasksChildTasksListDialog from 'components/TasksChildTasksListDialog.vue'
 import TaskDisplay from 'components/TaskDisplay.vue';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { formatDuration } from 'src/helpers/timeHelpers';
 import TaskDeletionConfirmationDialog from 'components/TaskDeletionConfirmationDialog.vue';
 
@@ -17,12 +17,28 @@ const props = defineProps<{
   filterByParentTask?: Task;
 }>();
 
+const displayByHierarchy = ref(true);
+
+const MARGIN_PIXELS_PER_NESTING_LEVEL = 12;
+
+const currentMarginPixelsPerNestingLevel = computed(() =>
+  displayByHierarchy.value ? MARGIN_PIXELS_PER_NESTING_LEVEL : 0
+);
+
 const tasksToDisplay = computed(() => {
-  return tasksStore.tasks.filter(
+  const result = tasksStore.tasks.filter(
     (t) =>
       !props.filterByParentTask ||
       t.parentTaskId === props.filterByParentTask.id
   );
+
+  if (displayByHierarchy.value) {
+    result.sort((task1: Task, task2: Task) =>
+      tasksStore.generateLabel(task1) > tasksStore.generateLabel(task2) ? 1 : -1
+    );
+  }
+
+  return result;
 });
 
 function totalTimeOfTaskEntries(task: Task) {
@@ -85,6 +101,14 @@ function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
       <div>
         {{ tasksStore.tasks.filter((task) => !task.parentTaskId).length }}
       </div>
+      <div>deepest nesting</div>
+      <div>
+        {{ tasksStore.highestNumberOfAncestors }}
+      </div>
+    </div>
+
+    <div style="width: fit-content; margin: auto auto 20px">
+      <q-toggle v-model="displayByHierarchy">display by hierarchy</q-toggle>
     </div>
 
     <div
@@ -95,7 +119,11 @@ function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
         align-items: center;
         justify-items: end;
         gap: 0 20px;
+        margin-left: 36px;
       "
+      :style="`margin-left: ${
+        tasksStore.highestNumberOfAncestors * currentMarginPixelsPerNestingLevel
+      }px`"
     >
       <div style="text-align: center; width: 100%">task</div>
       <div style="text-align: center; width: 100%">entries</div>
@@ -103,28 +131,36 @@ function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
       <div style="text-align: center; width: 100%">
         total time
         <br />
-        (without children)
+        (without descendants)
       </div>
       <div style="text-align: center; width: 100%">
         total time
         <br />
-        (with children)
+        (with descendants)
       </div>
       <template v-for="task in tasksToDisplay" :key="task.id">
-        <q-item
-          :style="{
-            backgroundColor: tasksStore.generateBackgroundColor(
-              tasksStore.getTaskById(task.id)
-            ),
-          }"
-          style="border: 1px solid #3333; width: 100%"
-          class="q-mt-sm"
+        <div
+          :style="`width: calc(100% - ${
+            (tasksStore.getNumberOfAncestors(task) -
+              tasksStore.highestNumberOfAncestors) *
+            currentMarginPixelsPerNestingLevel
+          }px)`"
         >
-          <TaskDisplay
-            :task="tasksStore.getTaskById(task.id)"
-            @openTaskEditing="tasksStore.editedTaskId = task.id"
-          ></TaskDisplay>
-        </q-item>
+          <q-item
+            :style="{
+              backgroundColor: tasksStore.generateBackgroundColor(
+                tasksStore.getTaskById(task.id)
+              ),
+            }"
+            style="border: 1px solid #3333; width: 100%"
+            class="q-mt-sm"
+          >
+            <TaskDisplay
+              :task="tasksStore.getTaskById(task.id)"
+              @openTaskEditing="tasksStore.editedTaskId = task.id"
+            ></TaskDisplay>
+          </q-item>
+        </div>
         <q-btn
           padding="0"
           style="width: 5ch"
