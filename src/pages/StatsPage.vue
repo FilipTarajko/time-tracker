@@ -1,22 +1,184 @@
 <script setup lang="ts">
+import TaskEditDialog from 'components/TaskEditDialog.vue';
+import TasksEntriesListDialog from 'components/TasksEntriesListDialog.vue';
+import EntryDeletionConfirmationDialog from 'components/EntryDeletionConfirmationDialog.vue';
+import TasksChildTasksListDialog from 'components/TasksChildTasksListDialog.vue';
+import TaskDisplay from 'components/TaskDisplay.vue';
+import { Task, useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
-import { useTasksStore } from 'stores/tasksStore';
+import { computed } from 'vue';
+import { formatDuration } from 'src/helpers/timeHelpers';
+import TaskDeletionConfirmationDialog from 'components/TaskDeletionConfirmationDialog.vue';
 
-const entriesStore = useEntriesStore();
 const tasksStore = useTasksStore();
+const entriesStore = useEntriesStore();
+
+const props = defineProps<{
+  filterByParentTask?: Task;
+}>();
+
+const tasksToDisplay = computed(() => {
+  return tasksStore.tasks.filter(
+    (t) =>
+      !props.filterByParentTask ||
+      t.parentTaskId === props.filterByParentTask.id
+  );
+});
+
+function totalTimeOfTaskEntries(task: Task) {
+  return formatDuration(
+    entriesStore.entries
+      .filter((entry) => entry.taskId === task.id)
+      .map((entry) => (entry?.endTime ?? Date.now()) - entry.startTime)
+      .reduce((taskDuration, entryDuration) => taskDuration + entryDuration, 0)
+  );
+}
+
+function totalTimeOfTaskAndDescendantsEntries(task: Task) {
+  return formatDuration(
+    entriesStore.entries
+      .filter((entry) =>
+        tasksStore.doesDependOn(
+          tasksStore.getTaskById(entry.taskId),
+          tasksStore.getTaskById(task.id)
+        )
+      )
+      .map((entry) => (entry?.endTime ?? Date.now()) - entry.startTime)
+      .reduce((taskDuration, entryDuration) => taskDuration + entryDuration, 0)
+  );
+}
+
+function doesTaskHaveOngoingEntry(task: Task) {
+  return entriesStore.entries
+    .filter((entry) => entry.taskId === task.id)
+    .some((entry) => entry.endTime == null);
+}
+
+function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
+  return entriesStore.entries
+    .filter((entry) =>
+      tasksStore.doesDependOn(
+        tasksStore.getTaskById(entry.taskId),
+        tasksStore.getTaskById(task.id)
+      )
+    )
+    .some((entry) => entry.endTime == null);
+}
 </script>
 
 <template>
-  <div style="display: grid; grid-template-columns: auto 1fr; gap: 0 12px">
-    <div>total entries</div>
-    <div>{{ entriesStore.entries.length }}</div>
-    <div>total tasks</div>
-    <div>{{ tasksStore.tasks.length }}</div>
-    <div>top-level tasks</div>
-    <div>
-      {{ tasksStore.tasks.filter((task) => !task.parentTaskId).length }}
+  <div style="width: fit-content; margin: 0 auto">
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(2, max-content);
+        gap: 0 20px;
+        width: fit-content;
+        margin: 24px auto;
+      "
+    >
+      <div>total entries</div>
+      <div>{{ entriesStore.entries.length }}</div>
+      <div>total tasks</div>
+      <div>{{ tasksStore.tasks.length }}</div>
+      <div>top-level tasks</div>
+      <div>
+        {{ tasksStore.tasks.filter((task) => !task.parentTaskId).length }}
+      </div>
+    </div>
+
+    <div
+      class="q-mt-md"
+      style="
+        display: grid;
+        grid-template-columns: repeat(5, auto);
+        align-items: center;
+        justify-items: end;
+        gap: 0 20px;
+      "
+    >
+      <div style="text-align: center; width: 100%">task</div>
+      <div style="text-align: center; width: 100%">entries</div>
+      <div style="text-align: center; width: 100%">child tasks</div>
+      <div style="text-align: center; width: 100%">
+        total time
+        <br />
+        (without children)
+      </div>
+      <div style="text-align: center; width: 100%">
+        total time
+        <br />
+        (with children)
+      </div>
+      <template v-for="task in tasksToDisplay" :key="task.id">
+        <q-item
+          :style="{
+            backgroundColor: tasksStore.generateBackgroundColor(
+              tasksStore.getTaskById(task.id)
+            ),
+          }"
+          style="border: 1px solid #3333; width: 100%"
+          class="q-mt-sm"
+        >
+          <TaskDisplay
+            :task="tasksStore.getTaskById(task.id)"
+            @openTaskEditing="tasksStore.editedTaskId = task.id"
+          ></TaskDisplay>
+        </q-item>
+        <q-btn
+          padding="0"
+          style="width: 5ch"
+          color="primary"
+          @click="tasksStore.taskForFilteredEntriesList = task"
+          :disabled="
+            !entriesStore.entries.filter((entry) => entry.taskId === task.id)
+              .length
+          "
+        >
+          {{
+            entriesStore.entries.filter((entry) => entry.taskId === task.id)
+              .length
+          }}
+        </q-btn>
+        <q-btn
+          padding="0"
+          style="width: 5ch"
+          color="primary"
+          @click="tasksStore.taskForFilteredTasksList = task"
+          :disabled="
+            !tasksStore.tasks.filter(
+              (testedTask) => testedTask.parentTaskId === task.id
+            ).length
+          "
+        >
+          {{
+            tasksStore.tasks.filter(
+              (testedTask) => testedTask.parentTaskId === task.id
+            ).length
+          }}
+        </q-btn>
+        <div
+          style="justify-self: center; align-self: center"
+          :style="{ color: doesTaskHaveOngoingEntry(task) ? 'red' : '' }"
+        >
+          {{ totalTimeOfTaskEntries(task) }}
+        </div>
+        <div
+          style="justify-self: center; align-self: center"
+          :style="{
+            color: doesTaskOrDescendantHaveOngoingEntry(task) ? 'red' : '',
+          }"
+        >
+          {{ totalTimeOfTaskAndDescendantsEntries(task) }}
+        </div>
+      </template>
     </div>
   </div>
+  <TaskEditDialog />
+  <TasksEntriesListDialog />
+  <TasksChildTasksListDialog />
+  <EntryDeletionConfirmationDialog />
+  <TaskDeletionConfirmationDialog />
 </template>
 
 <style scoped lang="scss"></style>
