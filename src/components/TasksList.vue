@@ -15,6 +15,7 @@ const props = defineProps<{
 const MARGIN_PIXELS_PER_NESTING_LEVEL = 12;
 
 const displayByHierarchy = ref(true);
+const displayTotalTimes = ref(true);
 
 const tasksToDisplay = computed(() => {
   const result = tasksStore.tasks.filter(
@@ -81,34 +82,41 @@ function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
   <div>
     <div style="width: fit-content; margin: auto auto 20px">
       <q-toggle v-model="displayByHierarchy">display by hierarchy</q-toggle>
+      <br />
+      <q-toggle v-model="displayTotalTimes">display total times</q-toggle>
     </div>
     <div
       class="q-mt-md"
       style="
         display: grid;
-        grid-template-columns: repeat(6, auto);
         align-items: center;
         justify-items: end;
         gap: 0 20px;
         margin-left: 36px;
       "
-      :style="`margin-left: ${
-        tasksStore.highestNumberOfAncestors * currentMarginPixelsPerNestingLevel
-      }px`"
+      :style="`
+        grid-template-columns: repeat(${4 + (displayTotalTimes ? 2 : 0)}, auto);
+        margin-left: ${
+          tasksStore.highestNumberOfAncestors *
+          currentMarginPixelsPerNestingLevel
+        }px`"
     >
       <div style="text-align: center; width: 100%">task</div>
       <div style="text-align: center; width: 100%">entries</div>
       <div style="text-align: center; width: 100%">child tasks</div>
-      <div style="text-align: center; width: 100%">
-        total time
-        <br />
-        (without descendants)
-      </div>
-      <div style="text-align: center; width: 100%">
-        total time
-        <br />
-        (with descendants)
-      </div>
+      <template v-if="displayTotalTimes">
+        <div style="text-align: center; width: 100%">
+          total time
+          <br />
+          (without descendants)
+        </div>
+        <div style="text-align: center; width: 100%">
+          total time
+          <br />
+          (with descendants)
+        </div>
+      </template>
+
       <div style="text-align: center; width: 100%">delete</div>
       <template v-for="task in tasksToDisplay" :key="task.id">
         <div
@@ -165,20 +173,22 @@ function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
             ).length
           }}
         </q-btn>
-        <div
-          style="justify-self: center; align-self: center"
-          :style="{ color: doesTaskHaveOngoingEntry(task) ? 'red' : '' }"
-        >
-          {{ totalTimeOfTaskEntries(task) }}
-        </div>
-        <div
-          style="justify-self: center; align-self: center"
-          :style="{
-            color: doesTaskOrDescendantHaveOngoingEntry(task) ? 'red' : '',
-          }"
-        >
-          {{ totalTimeOfTaskAndDescendantsEntries(task) }}
-        </div>
+        <template v-if="displayTotalTimes">
+          <div
+            style="justify-self: center; align-self: center"
+            :style="{ color: doesTaskHaveOngoingEntry(task) ? 'red' : '' }"
+          >
+            {{ totalTimeOfTaskEntries(task) }}
+          </div>
+          <div
+            style="justify-self: center; align-self: center"
+            :style="{
+              color: doesTaskOrDescendantHaveOngoingEntry(task) ? 'red' : '',
+            }"
+          >
+            {{ totalTimeOfTaskAndDescendantsEntries(task) }}
+          </div>
+        </template>
         <div style="justify-self: center; align-self: center">
           <q-btn
             :disabled="
