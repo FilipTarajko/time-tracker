@@ -5,6 +5,7 @@ import TasksEntriesListDialog from 'components/TasksEntriesListDialog.vue';
 import EntryDeletionConfirmationDialog from 'components/EntryDeletionConfirmationDialog.vue';
 import TasksList from 'components/TasksList.vue';
 import TasksChildTasksListDialog from 'components/TasksChildTasksListDialog.vue';
+import TaskMergeDialog from 'components/TaskMergeDialog.vue';
 </script>
 
 <template>
@@ -16,6 +17,7 @@ import TasksChildTasksListDialog from 'components/TasksChildTasksListDialog.vue'
   <TasksEntriesListDialog />
   <TasksChildTasksListDialog />
   <EntryDeletionConfirmationDialog />
+  <TaskMergeDialog />
 </template>
 
 <style scoped lang="scss"></style>

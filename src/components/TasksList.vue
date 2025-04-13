@@ -76,6 +76,14 @@ function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
     )
     .some((entry) => entry.endTime == null);
 }
+
+function doesTaskHaveEntriesOrAncestors(task: Task) {
+  return (
+    entriesStore.entries.filter((entry) => entry.taskId === task.id).length ||
+    tasksStore.tasks.filter((testedTask) => testedTask.parentTaskId === task.id)
+      .length
+  );
+}
 </script>
 
 <template>
@@ -191,13 +199,16 @@ function doesTaskOrDescendantHaveOngoingEntry(task: Task) {
         </template>
         <div style="justify-self: center; align-self: center">
           <q-btn
-            :disabled="
-              entriesStore.entries.filter((entry) => entry.taskId === task.id)
-                .length ||
-              tasksStore.tasks.filter(
-                (testedTask) => testedTask.parentTaskId === task.id
-              ).length
-            "
+            v-if="doesTaskHaveEntriesOrAncestors(task)"
+            @click="tasksStore.taskForMerging = task"
+            flat
+            round
+            color="orange"
+            size="10px"
+            icon="merge"
+          />
+          <q-btn
+            v-else
             @click="tasksStore.taskForDeletionConfirmation = task"
             flat
             round

@@ -196,6 +196,18 @@ export const useTasksStore = defineStore('tasks', () => {
     },
   });
 
+  const taskForMerging: Ref<Task | null> = ref(null);
+  const doesTaskForMergingExist = computed({
+    get() {
+      return taskForMerging.value !== null;
+    },
+    set(x) {
+      if (!x) {
+        taskForMerging.value = null;
+      }
+    },
+  });
+
   async function deleteTask(task: Task) {
     const { data, error } = await supabase
       .from('tasks')
@@ -240,6 +252,35 @@ export const useTasksStore = defineStore('tasks', () => {
     return Math.max(...tasks.value.map((task) => getNumberOfAncestors(task)));
   });
 
+  function changeParentOfTasks(tasks: Task[], newParentTaskId: string) {
+    tasks.forEach((task) => {
+      task.parentTaskId = newParentTaskId;
+      upsertTask(task);
+    });
+  }
+
+  function mergeTask(taskToMergeFrom: Task, taskToMergeInto: Task) {
+    if (taskToMergeFrom === taskToMergeInto) {
+      console.log('cannot merge task into itself!');
+      return false;
+    }
+
+    const entriesOfTaskMergedFrom = useEntriesStore().entries.filter(
+      (entry) => entry.taskId === taskToMergeFrom.id
+    );
+    useEntriesStore().changeTaskOfEntries(
+      entriesOfTaskMergedFrom,
+      taskToMergeInto.id
+    );
+
+    const childrenOfTaskMergedFrom = tasks.value.filter(
+      (task) => task.parentTaskId === taskToMergeFrom.id
+    );
+    changeParentOfTasks(childrenOfTaskMergedFrom, taskToMergeInto.id);
+
+    deleteTask(taskToMergeFrom);
+  }
+
   return {
     tasks,
     getTaskById,
@@ -258,6 +299,8 @@ export const useTasksStore = defineStore('tasks', () => {
     isTaskBeingEdited,
     taskForDeletionConfirmation,
     doesTaskForDeletionConfirmationExist,
+    taskForMerging,
+    doesTaskForMergingExist,
     deleteTask,
     taskForFilteredEntriesList,
     doesTaskForFilteredEntriesListExist,
@@ -265,5 +308,6 @@ export const useTasksStore = defineStore('tasks', () => {
     doesTaskForFilteredTasksListExist,
     getNumberOfAncestors,
     highestNumberOfAncestors,
+    mergeTask,
   };
 });

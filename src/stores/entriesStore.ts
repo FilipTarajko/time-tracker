@@ -80,6 +80,13 @@ export const useEntriesStore = defineStore('entries', () => {
     upsertEntry(entry);
   }
 
+  function changeTaskOfEntries(entries: Entry[], newTaskId: string) {
+    entries.forEach((entry) => {
+      entry.taskId = newTaskId;
+      upsertEntry(entry);
+    });
+  }
+
   function getMinuteOfDayFromHHmm(HHmm: string): number {
     const parts = HHmm.split(':');
     return MINUTES_IN_HOUR * Number(parts[0]) + Number(parts[1]);
@@ -219,5 +226,6 @@ export const useEntriesStore = defineStore('entries', () => {
     countEntriesByTask,
     entryForDeletionConfirmation,
     doesEntryForDeletionConfirmationExist,
+    changeTaskOfEntries,
   };
 });
