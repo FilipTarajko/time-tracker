@@ -3,7 +3,7 @@ import { computed, ref } from 'vue';
 import { supabase } from 'src/lib/supabaseClient';
 
 import { Notify } from 'quasar';
-import { useTasksStore } from 'stores/tasksStore';
+import { Task, useTasksStore } from 'stores/tasksStore';
 import { Entry, useEntriesStore } from 'stores/entriesStore';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
@@ -99,11 +99,10 @@ export const useAuthStore = defineStore('auth', () => {
     await clearOtherData();
   }
 
+  // TODO: refactor
   function handleReceivedChange(
     change: RealtimePostgresChangesPayload<{ [p: string]: unknown }>
   ) {
-    console.log(change);
-    console.log(change.table, change.eventType);
     const eventType = change.eventType as EventTypes;
 
     if (change.table == Tables.entries) {
@@ -133,8 +132,35 @@ export const useAuthStore = defineStore('auth', () => {
           return entry.dbid != removedEntry.dbid; // on DELETE, only dbid is sent
         });
       }
+    } else if (change.table == Tables.tasks) {
+      const tasksStore = useTasksStore();
+
+      if ([EventTypes.INSERT, EventTypes.UPDATE].includes(eventType)) {
+        const changedTask = change.new as Task;
+        let replaced = false;
+
+        tasksStore.tasks = tasksStore.tasks.map((task: Task) => {
+          if (task.id === changedTask.id) {
+            replaced = true;
+            return changedTask;
+          } else {
+            return task;
+          }
+        });
+
+        if (!replaced) {
+          tasksStore.tasks.unshift(changedTask);
+        }
+      }
+
+      if (change.eventType == EventTypes.DELETE) {
+        const removedTask = change.old;
+        tasksStore.tasks = tasksStore.tasks.filter((task: Task) => {
+          return task.dbid != removedTask.dbid; // on DELETE, only dbid is sent
+        });
+      }
     } else {
-      console.error('received change from unhandled table');
+      console.error(`received ${change} from unhandled table (${change.table})`);
     }
   }
 
