@@ -5,18 +5,31 @@ import { supabase } from 'src/lib/supabaseClient';
 import { Notify } from 'quasar';
 import { useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore } from 'stores/entriesStore';
+import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 export const useAuthStore = defineStore('auth', () => {
   const currentUserEmail = ref('');
 
   const isLoggedIn = computed<boolean>(() => {
     return !!currentUserEmail.value;
-  })
+  });
 
   // TODO: make local-first
   async function initOtherData() {
     await useTasksStore().initFromSupabase();
     await useEntriesStore().initFromSupabase();
+
+    supabase
+      .channel('schema-db-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+        },
+        (payload) => handleReceivedChange(payload)
+      )
+      .subscribe();
   }
 
   async function clearOtherData() {
@@ -86,5 +99,27 @@ export const useAuthStore = defineStore('auth', () => {
     await clearOtherData();
   }
 
-  return { initFromSupabase, currentUserEmail, signUp, logIn, logOut, isLoggedIn };
+  function handleReceivedChange(
+    change: RealtimePostgresChangesPayload<{ [p: string]: unknown }>
+  ) {
+    console.log(change);
+    if (change.table == Tables.entries) {
+      console.log('entry');
+    } else {
+      console.error('received change from unhandled table')
+    }
+  }
+
+  enum Tables {
+    entries = 'entries',
+  }
+
+  return {
+    initFromSupabase,
+    currentUserEmail,
+    signUp,
+    logIn,
+    logOut,
+    isLoggedIn,
+  };
 });
