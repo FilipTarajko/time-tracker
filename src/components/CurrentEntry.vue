@@ -36,6 +36,7 @@
       <q-input
         label="description"
         v-model="entriesStore.descriptionForNewEntry"
+        debounce="300"
       >
       </q-input>
       <q-btn
