@@ -4,7 +4,7 @@ import { supabase } from 'src/lib/supabaseClient';
 
 import { Notify } from 'quasar';
 import { useTasksStore } from 'stores/tasksStore';
-import { useEntriesStore } from 'stores/entriesStore';
+import { Entry, useEntriesStore } from 'stores/entriesStore';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -103,15 +103,50 @@ export const useAuthStore = defineStore('auth', () => {
     change: RealtimePostgresChangesPayload<{ [p: string]: unknown }>
   ) {
     console.log(change);
+    console.log(change.table, change.eventType);
+    const eventType = change.eventType as EventTypes;
+
     if (change.table == Tables.entries) {
-      console.log('entry');
+      const entriesStore = useEntriesStore();
+
+      if ([EventTypes.INSERT, EventTypes.UPDATE].includes(eventType)) {
+        const changedEntry = change.new as Entry;
+        let replaced = false;
+
+        entriesStore.entries = entriesStore.entries.map((entry: Entry) => {
+          if (entry.id === changedEntry.id) {
+            replaced = true;
+            return changedEntry;
+          } else {
+            return entry;
+          }
+        });
+
+        if (!replaced) {
+          entriesStore.entries.unshift(changedEntry);
+        }
+      }
+
+      if (change.eventType == EventTypes.DELETE) {
+        const removedEntry = change.old;
+        entriesStore.entries = entriesStore.entries.filter((entry: Entry) => {
+          return entry.dbid != removedEntry.dbid; // on DELETE, only dbid is sent
+        });
+      }
     } else {
-      console.error('received change from unhandled table')
+      console.error('received change from unhandled table');
     }
   }
 
   enum Tables {
     entries = 'entries',
+    tasks = 'tasks',
+  }
+
+  enum EventTypes {
+    INSERT = 'INSERT',
+    UPDATE = 'UPDATE',
+    DELETE = 'DELETE',
   }
 
   return {
