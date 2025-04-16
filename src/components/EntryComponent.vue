@@ -5,9 +5,11 @@ import TaskDisplay from 'components/TaskDisplay.vue';
 import { getTimestampDifferenceString } from 'src/helpers/timeHelpers';
 import { useTasksStore } from 'stores/tasksStore';
 import { useEntriesStore, Entry } from 'stores/entriesStore';
+import { useSettingsStore } from 'stores/settingsStore';
 
 const entriesStore = useEntriesStore();
 const tasksStore = useTasksStore();
+const settingsStore = useSettingsStore();
 
 defineProps<{
   entry: Entry;
@@ -34,6 +36,9 @@ defineProps<{
         @openTaskEditing="tasksStore.editedTaskId = entry.taskId"
       ></TaskDisplay>
       <EntryDescription :entry />
+      <div v-if="settingsStore.displayUpdatedAt">
+        {{ entry.updated_at }}
+      </div>
     </div>
     <div style="display: flex; flex-direction: row; gap: 1.6em">
       <div class="timestamps-and-duration-flex">

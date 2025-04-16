@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { Task, useTasksStore } from 'stores/tasksStore';
+import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
+import { useSettingsStore } from 'stores/settingsStore';
 
 const tasksStore = useTasksStore();
+const settingsStore = useSettingsStore();
 
 defineProps<{
   task: Task;
@@ -11,7 +14,6 @@ const emit = defineEmits<{
   openTaskEditing: [];
 }>();
 
-import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
 </script>
 
 <template>
@@ -28,6 +30,9 @@ import TasksImgOrIcon from 'components/TasksImgOrIcon.vue';
       </q-item-label>
       <q-item-label v-if="task.parentTaskId" caption
         >{{ tasksStore.generateLabel(task) }}
+      </q-item-label>
+      <q-item-label v-if="settingsStore.displayUpdatedAt">
+        {{task.updated_at}}
       </q-item-label>
     </q-item-section>
   </div>

@@ -15,7 +15,7 @@ export interface Task {
   imageSrc?: string;
   color?: string;
   defaultDescription?: string;
-  // TODO: add last_edited
+  updated_at?: string;
 }
 
 // TODO: add actions and ui for editing tasks

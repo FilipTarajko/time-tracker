@@ -22,7 +22,7 @@ export interface Entry {
   endTime: number | null;
   date?: string;
   user_id?: string;
-  // TODO: add last_edited
+  updated_at?: string;
 }
 
 const settingsStore = useSettingsStore();

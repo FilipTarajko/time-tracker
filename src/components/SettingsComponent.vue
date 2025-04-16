@@ -23,6 +23,10 @@ const settingsStore = useSettingsStore();
       :disable="!settingsStore.goOver24WhenOffset"
       >also go over 24 when multi day
     </q-checkbox>
+    <q-checkbox
+      v-model="settingsStore.displayUpdatedAt"
+    >display updated_at
+    </q-checkbox>
   </div>
 </template>
 
