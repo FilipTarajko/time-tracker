@@ -10,7 +10,7 @@ const tasksStore = useTasksStore();
     v-if="tasksStore.taskForFilteredEntriesList"
     v-model="tasksStore.doesTaskForFilteredEntriesListExist"
   >
-    <q-card class="q-pa-lg" style="max-width: 500px; width: 100%">
+    <q-card class="q-pa-lg" style="max-width: 800px; width: 100%">
       entries for task {{ tasksStore.taskForFilteredEntriesList.name }}
       <EntriesList
         display-ongoing

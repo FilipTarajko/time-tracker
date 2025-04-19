@@ -34,7 +34,9 @@ const tasksToDisplay = computed(() => {
 });
 
 const currentMarginPixelsPerNestingLevel = computed(() =>
-  displayByHierarchy.value ? MARGIN_PIXELS_PER_NESTING_LEVEL : 0
+  displayByHierarchy.value && !props.filterByParentTask
+    ? MARGIN_PIXELS_PER_NESTING_LEVEL
+    : 0
 );
 
 function totalTimeOfTaskEntries(task: Task) {

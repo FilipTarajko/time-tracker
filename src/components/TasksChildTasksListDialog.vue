@@ -10,7 +10,7 @@ const tasksStore = useTasksStore();
     v-if="tasksStore.taskForFilteredTasksList"
     v-model="tasksStore.doesTaskForFilteredTasksListExist"
   >
-    <q-card class="q-pa-lg" style="max-width: 500px; width: 100%">
+    <q-card class="q-pa-lg" style="max-width: 800px; width: 100%">
       <div>
         child tasks of task {{ tasksStore.taskForFilteredTasksList.name }}
       </div>
