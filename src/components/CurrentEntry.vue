@@ -16,7 +16,7 @@
             tasksStore.currentTask
           ),
         }"
-        @new-value="tasksStore.createAndSelectNewTask"
+        @new-value="tasksStore.selectTaskAndCreateIfDoesntExist"
       >
         <template v-slot:prepend>
           <TasksImgOrIcon :task="tasksStore.currentTask"></TasksImgOrIcon>

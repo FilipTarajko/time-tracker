@@ -4,13 +4,14 @@ import { supabase } from 'src/lib/supabaseClient';
 import { useEntriesStore } from 'stores/entriesStore';
 import { Notify } from 'quasar';
 
+const TASK_NESTING_INDICATOR = '::';
 const TASK_COLOR_OPACITY_HEX = '16';
 
 export interface Task {
   dbid?: string;
   id: string;
   name: string;
-  parentTaskId?: string;
+  parentTaskId: string | null;
   icon?: string;
   imageSrc?: string;
   color?: string;
@@ -66,7 +67,7 @@ export const useTasksStore = defineStore('tasks', () => {
       )!;
       result.push(traversedTask.name);
     }
-    return result.reverse().join('::');
+    return result.reverse().join(TASK_NESTING_INDICATOR);
   }
 
   function getNumberOfAncestors(originalTask: Task): number {
@@ -85,7 +86,7 @@ export const useTasksStore = defineStore('tasks', () => {
     return (task?.color ?? '#ffffff') + TASK_COLOR_OPACITY_HEX;
   }
 
-  function createNewTask(name: string, parentTaskId: string | undefined) {
+  function createNewTask(name: string, parentTaskId: string | null = null) {
     const newTask = {
       id: crypto.randomUUID(),
       parentTaskId,
@@ -99,17 +100,33 @@ export const useTasksStore = defineStore('tasks', () => {
     return newTask;
   }
 
-  function createAndStartNewTaskByPath(fullPath: string) {
-    const names = fullPath.split('::');
-    let parentTaskId: string | undefined = undefined;
-    let resultTask: Task | undefined = undefined;
+  function findOrCreateTaskByName(name: string) {
+    let matchedTask = tasks.value.find(
+      (task) =>
+        task.name.toLowerCase() === name.toLowerCase() &&
+        task.parentTaskId == null
+    );
+
+    if (!matchedTask) {
+      matchedTask = tasks.value.find(
+        (task) => task.name.toLowerCase() === name.toLowerCase()
+      );
+    }
+
+    return matchedTask ?? createNewTask(name, null);
+  }
+
+  function findOrCreateTaskByPath(path: string) {
+    const names = path.split(TASK_NESTING_INDICATOR);
+    let parentTaskId: string | null = null;
+    let resultTask: Task | null = null;
 
     for (let i = 0; i < names.length; i++) {
       const name = names[i];
       const matchedTask = tasks.value.find(
         (task) =>
           task.name.toLowerCase() === name.toLowerCase() &&
-          task.parentTaskId === parentTaskId
+          task.parentTaskId == parentTaskId
       );
 
       resultTask = matchedTask ?? createNewTask(name, parentTaskId);
@@ -117,6 +134,14 @@ export const useTasksStore = defineStore('tasks', () => {
     }
 
     return resultTask!;
+  }
+
+  function findOrCreateTaskByNameOrPath(pathOrName: string) {
+    if (!pathOrName.includes(TASK_NESTING_INDICATOR)) {
+      return findOrCreateTaskByName(pathOrName);
+    }
+
+    return findOrCreateTaskByPath(pathOrName);
   }
 
   async function initFromSupabase() {
@@ -167,8 +192,8 @@ export const useTasksStore = defineStore('tasks', () => {
     return sortedTasks.slice(0, 6);
   });
 
-  function createAndSelectNewTask(pullPath: string) {
-    const newTask = createAndStartNewTaskByPath(pullPath);
+  function selectTaskAndCreateIfDoesntExist(pathOrName: string) {
+    const newTask = findOrCreateTaskByNameOrPath(pathOrName);
     handleCurrentTaskChange(newTask);
   }
 
@@ -286,7 +311,7 @@ export const useTasksStore = defineStore('tasks', () => {
     getTaskById,
     generateLabel,
     generateBackgroundColor,
-    createAndStartNewTaskByPath,
+    findOrCreateTaskByNameOrPath,
     initFromSupabase,
     currentTask,
     handleCurrentTaskChange,
@@ -294,7 +319,7 @@ export const useTasksStore = defineStore('tasks', () => {
     pickerRefreshCount,
     doesDependOn,
     tasksList,
-    createAndSelectNewTask,
+    selectTaskAndCreateIfDoesntExist,
     editedTaskId,
     isTaskBeingEdited,
     taskForDeletionConfirmation,
