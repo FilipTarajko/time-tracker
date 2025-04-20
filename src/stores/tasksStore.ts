@@ -116,12 +116,12 @@ export const useTasksStore = defineStore('tasks', () => {
     return matchedTask ?? createNewTask(name, null);
   }
 
-  function findOrCreateTaskByPath(path: string) {
-    const names = path.split(TASK_NESTING_INDICATOR);
-    let parentTaskId: string | null = null;
-    let resultTask: Task | null = null;
+  function findOrCreateTaskByFullOrPartialPath(fullOrPartialPath: string) {
+    const names = fullOrPartialPath.split(TASK_NESTING_INDICATOR);
+    let resultTask: Task | null = findOrCreateTaskByName(names[0]);
+    let parentTaskId: string = resultTask.id;
 
-    for (let i = 0; i < names.length; i++) {
+    for (let i = 1; i < names.length; i++) {
       const name = names[i];
       const matchedTask = tasks.value.find(
         (task) =>
@@ -136,12 +136,14 @@ export const useTasksStore = defineStore('tasks', () => {
     return resultTask!;
   }
 
-  function findOrCreateTaskByNameOrPath(pathOrName: string) {
-    if (!pathOrName.includes(TASK_NESTING_INDICATOR)) {
-      return findOrCreateTaskByName(pathOrName);
+  function findOrCreateTaskByNameOrFullOrPartialPath(
+    fullOrPartialPathOrName: string
+  ) {
+    if (!fullOrPartialPathOrName.includes(TASK_NESTING_INDICATOR)) {
+      return findOrCreateTaskByName(fullOrPartialPathOrName);
     }
 
-    return findOrCreateTaskByPath(pathOrName);
+    return findOrCreateTaskByFullOrPartialPath(fullOrPartialPathOrName);
   }
 
   async function initFromSupabase() {
@@ -193,7 +195,7 @@ export const useTasksStore = defineStore('tasks', () => {
   });
 
   function selectTaskAndCreateIfDoesntExist(pathOrName: string) {
-    const newTask = findOrCreateTaskByNameOrPath(pathOrName);
+    const newTask = findOrCreateTaskByNameOrFullOrPartialPath(pathOrName);
     handleCurrentTaskChange(newTask);
   }
 
@@ -311,7 +313,6 @@ export const useTasksStore = defineStore('tasks', () => {
     getTaskById,
     generateLabel,
     generateBackgroundColor,
-    findOrCreateTaskByNameOrPath,
     initFromSupabase,
     currentTask,
     handleCurrentTaskChange,
