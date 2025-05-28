@@ -1,9 +1,7 @@
 import { defineStore } from 'pinia';
 import { computed, Ref, ref } from 'vue';
-import { date } from 'quasar';
+import { date, Notify } from 'quasar';
 import { supabase } from 'src/lib/supabaseClient';
-
-import { Notify } from 'quasar';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useSettingsStore } from 'stores/settingsStore';
 import {
@@ -12,6 +10,7 @@ import {
   MILLISECONDS_IN_DAY,
   MINUTES_IN_HOUR,
 } from 'src/helpers/timeHelpers';
+import { indexedDb } from 'src/lib/indexedDb';
 
 export interface Entry {
   dbid?: string;
@@ -138,7 +137,8 @@ export const useEntriesStore = defineStore('entries', () => {
 
   async function initFromSupabase() {
     const { data } = await supabase.from('entries').select();
-    entries.value = data as Entry[];
+    await indexedDb.entries.bulkPut(data as Entry[]);
+    entries.value = await indexedDb.entries.toArray();
   }
 
   async function upsertEntry(entry: Entry) {
@@ -156,6 +156,7 @@ export const useEntriesStore = defineStore('entries', () => {
 
     Notify.create({ message: 'Upserted entry', type: 'positive' });
     entry.dbid = data[0].dbid;
+    await indexedDb.entries.put(data[0]);
   }
 
   async function deleteEntry(entry: Entry) {
@@ -171,6 +172,7 @@ export const useEntriesStore = defineStore('entries', () => {
     }
 
     Notify.create({ message: 'Deleted entry', type: 'positive' });
+    await indexedDb.entries.delete(data[0].dbid);
     entries.value = entries.value.filter((e) => e.dbid != data[0].dbid);
   }
 
