@@ -6,6 +6,7 @@ import { Notify } from 'quasar';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { Entry, useEntriesStore } from 'stores/entriesStore';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { indexedDb } from 'src/lib/indexedDb';
 
 export const useAuthStore = defineStore('auth', () => {
   const currentUserEmail = ref('');
@@ -35,6 +36,8 @@ export const useAuthStore = defineStore('auth', () => {
   async function clearOtherData() {
     useEntriesStore().entries = [];
     useTasksStore().tasks = [];
+    indexedDb.entries.clear();
+    indexedDb.tasks.clear();
   }
 
   async function initFromSupabase() {

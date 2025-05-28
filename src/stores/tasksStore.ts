@@ -3,6 +3,7 @@ import { computed, Ref, ref } from 'vue';
 import { supabase } from 'src/lib/supabaseClient';
 import { useEntriesStore } from 'stores/entriesStore';
 import { Notify } from 'quasar';
+import { indexedDb } from 'src/lib/indexedDb';
 
 const TASK_NESTING_INDICATOR = '::';
 const TASK_COLOR_OPACITY_HEX = '16';
@@ -148,7 +149,8 @@ export const useTasksStore = defineStore('tasks', () => {
 
   async function initFromSupabase() {
     const { data } = await supabase.from('tasks').select();
-    tasks.value = data as Task[];
+    await indexedDb.tasks.bulkPut(data as Task[]);
+    tasks.value = await indexedDb.tasks.toArray();
   }
 
   function handleCurrentTaskChange(task: Task) {
@@ -167,6 +169,7 @@ export const useTasksStore = defineStore('tasks', () => {
 
     Notify.create({ message: 'Upserted tasks', type: 'positive' });
     task.dbid = data[0].dbid;
+    await indexedDb.tasks.put(data[0]);
   }
 
   function doesDependOn(checkedTask: Task, potentialAncestor: Task): boolean {
@@ -248,6 +251,7 @@ export const useTasksStore = defineStore('tasks', () => {
     }
 
     Notify.create({ message: 'Deleted task', type: 'positive' });
+    await indexedDb.tasks.delete(data[0].dbid);
     tasks.value = tasks.value.filter((t) => t.dbid != data[0].dbid);
   }
 
