@@ -147,8 +147,27 @@ export const useTasksStore = defineStore('tasks', () => {
     return findOrCreateTaskByFullOrPartialPath(fullOrPartialPathOrName);
   }
 
+  function getLastFullLoadTimestamp() {
+    return (
+      localStorage.getItem('last_tasks_full_load_timestamp') ??
+      new Date('1970-01-01').toISOString()
+    );
+  }
+
+  function setLastFullLoadTimestamp() {
+    localStorage.setItem(
+      'last_tasks_full_load_timestamp',
+      new Date().toISOString()
+    );
+  }
+
   async function initFromSupabase() {
-    const { data } = await supabase.from('tasks').select();
+    const prevFullLoadTimestamp = getLastFullLoadTimestamp();
+    setLastFullLoadTimestamp();
+    const { data } = await supabase
+      .from('tasks')
+      .select()
+      .gte('updated_at', prevFullLoadTimestamp);
     await indexedDb.tasks.bulkPut(data as Task[]);
     tasks.value = await indexedDb.tasks.toArray();
   }
