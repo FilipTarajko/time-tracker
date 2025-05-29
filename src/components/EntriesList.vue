@@ -8,9 +8,12 @@ import { Task } from 'stores/tasksStore';
 const entriesStore = useEntriesStore();
 
 const now = ref(Date.now());
+
+const stepMilliseconds = 100;
+
 setInterval(() => {
-  now.value = Date.now();
-}, 1000);
+  now.value = Math.ceil(Date.now() / stepMilliseconds) * stepMilliseconds;
+}, stepMilliseconds);
 
 const props = defineProps<{
   displayOngoing: boolean;
@@ -61,7 +64,11 @@ const filteredEntriesWithDates = computed<Map<string, Entry[]>>(() => {
               (entriesStore.ongoingEntry &&
               entriesStore.getLocalDateOfEntry(entriesStore.ongoingEntry) ==
                 dateAndEntries[0]
-                ? now - entriesStore.ongoingEntry.startTime
+                ? now -
+                  Math.floor(
+                    entriesStore.ongoingEntry.startTime / stepMilliseconds
+                  ) *
+                    stepMilliseconds
                 : 0)
           )
         }}
