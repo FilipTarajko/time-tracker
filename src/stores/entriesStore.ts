@@ -22,6 +22,7 @@ export interface Entry {
   date?: string;
   user_id?: string;
   updated_at?: string;
+  is_deleted?: boolean;
 }
 
 const settingsStore = useSettingsStore();
@@ -143,7 +144,15 @@ export const useEntriesStore = defineStore('entries', () => {
   }
 
   function setLastFullLoadTimestamp() {
-    localStorage.setItem('last_entries_full_load_timestamp', new Date().toISOString());
+    localStorage.setItem(
+      'last_entries_full_load_timestamp',
+      new Date().toISOString()
+    );
+  }
+
+  function clear() {
+    entries.value = [];
+    localStorage.removeItem('last_entries_full_load_timestamp');
   }
 
   async function initFromSupabase() {
@@ -153,7 +162,20 @@ export const useEntriesStore = defineStore('entries', () => {
       .from('entries')
       .select()
       .gte('updated_at', prevFullLoadTimestamp);
-    await indexedDb.entries.bulkPut(data as Entry[]);
+    // console.log((data as Entry[]).filter((entry) => !entry.is_deleted));
+    await indexedDb.entries.bulkPut(
+      (data as Entry[]).filter((entry) => !entry.is_deleted)
+    );
+    // console.log(
+    //   (data as Entry[])
+    //     .filter((entry) => entry.is_deleted)
+    //     .map((entry) => entry.dbid)
+    // );
+    await indexedDb.entries.bulkDelete(
+      (data as Entry[])
+        .filter((entry) => entry.is_deleted)
+        .map((entry) => entry.dbid)
+    );
     entries.value = await indexedDb.entries.toArray();
   }
 
@@ -178,7 +200,7 @@ export const useEntriesStore = defineStore('entries', () => {
   async function deleteEntry(entry: Entry) {
     const { data, error } = await supabase
       .from('entries')
-      .delete()
+      .upsert({ ...entry, is_deleted: true })
       .eq('dbid', entry.dbid)
       .select();
 
@@ -245,5 +267,6 @@ export const useEntriesStore = defineStore('entries', () => {
     entryForDeletionConfirmation,
     doesEntryForDeletionConfirmationExist,
     changeTaskOfEntries,
+    clear,
   };
 });

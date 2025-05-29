@@ -18,6 +18,7 @@ export interface Task {
   color?: string;
   defaultDescription?: string;
   updated_at?: string;
+  is_deleted?: boolean;
 }
 
 // TODO: add actions and ui for editing tasks
@@ -161,6 +162,11 @@ export const useTasksStore = defineStore('tasks', () => {
     );
   }
 
+  function clear() {
+    tasks.value = [];
+    localStorage.removeItem('last_tasks_full_load_timestamp');
+  }
+
   async function initFromSupabase() {
     const prevFullLoadTimestamp = getLastFullLoadTimestamp();
     setLastFullLoadTimestamp();
@@ -168,7 +174,20 @@ export const useTasksStore = defineStore('tasks', () => {
       .from('tasks')
       .select()
       .gte('updated_at', prevFullLoadTimestamp);
-    await indexedDb.tasks.bulkPut(data as Task[]);
+    // console.log((data as Task[]).filter((task) => !task.is_deleted));
+    await indexedDb.tasks.bulkPut(
+      (data as Task[]).filter((task) => !task.is_deleted)
+    );
+    // console.log(
+    //   (data as Task[])
+    //     .filter((task) => task.is_deleted)
+    //     .map((task) => task.dbid)
+    // );
+    await indexedDb.tasks.bulkDelete(
+      (data as Task[])
+        .filter((task) => task.is_deleted)
+        .map((task) => task.dbid)
+    );
     tasks.value = await indexedDb.tasks.toArray();
   }
 
@@ -260,7 +279,7 @@ export const useTasksStore = defineStore('tasks', () => {
   async function deleteTask(task: Task) {
     const { data, error } = await supabase
       .from('tasks')
-      .delete()
+      .upsert({ ...task, is_deleted: true })
       .eq('dbid', task.dbid)
       .select();
 
@@ -358,5 +377,6 @@ export const useTasksStore = defineStore('tasks', () => {
     getNumberOfAncestors,
     highestNumberOfAncestors,
     mergeTask,
+    clear,
   };
 });
