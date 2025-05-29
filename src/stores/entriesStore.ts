@@ -5,9 +5,9 @@ import { supabase } from 'src/lib/supabaseClient';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useSettingsStore } from 'stores/settingsStore';
 import {
-  MILLISECONDS_IN_MINUTE,
-  MILLISECONDS_IN_HOUR,
   MILLISECONDS_IN_DAY,
+  MILLISECONDS_IN_HOUR,
+  MILLISECONDS_IN_MINUTE,
   MINUTES_IN_HOUR,
 } from 'src/helpers/timeHelpers';
 import { indexedDb } from 'src/lib/indexedDb';
@@ -135,8 +135,24 @@ export const useEntriesStore = defineStore('entries', () => {
     upsertEntry(entry);
   }
 
+  function getLastFullLoadTimestamp() {
+    return (
+      localStorage.getItem('last_entries_full_load_timestamp') ??
+      new Date('1970-01-01').toISOString()
+    );
+  }
+
+  function setLastFullLoadTimestamp() {
+    localStorage.setItem('last_entries_full_load_timestamp', new Date().toISOString());
+  }
+
   async function initFromSupabase() {
-    const { data } = await supabase.from('entries').select();
+    const prevFullLoadTimestamp = getLastFullLoadTimestamp();
+    setLastFullLoadTimestamp();
+    const { data } = await supabase
+      .from('entries')
+      .select()
+      .gte('updated_at', prevFullLoadTimestamp);
     await indexedDb.entries.bulkPut(data as Entry[]);
     entries.value = await indexedDb.entries.toArray();
   }
