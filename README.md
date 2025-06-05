@@ -2,6 +2,15 @@
 
 Time-tracking tool
 
+## Features and core ideas
+
+- time is measured using entries, each of which can be assigned a start time, an end time, a task and a description
+- each task can be nested in another task and assigned a color an icon
+- all data available to a user is loaded into the browser, so that - after initial load - all data is always immediately available
+  - filtering, browsing, and analysis of all tasks and entries without any additional network requests
+  - immediate tasks autocomplete suggestions for all your tasks
+  - in case of database changes after initial load, state on other currently-connected devices will be updated over WebSockets
+
 ## Used technologies
 
 [<img align="left" width="26" height="26" alt="Vue.js" src="https://api.iconify.design/devicon:vuejs.svg" style="padding: 0 20px 16px 0">](https://vuejs.org "Vue.js")
