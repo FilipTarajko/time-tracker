@@ -10,6 +10,7 @@ Time-tracking tool
   - filtering, browsing, and analysis of all tasks and entries without any additional network requests
   - immediate tasks autocomplete suggestions for all your tasks
   - in case of database changes after initial load, state on other currently-connected devices will be updated over WebSockets
+  - only changes are transferred over the network - data of tasks and entries that weren't modified since last initial load are already saved in the browser's IndexedDB
 
 ## Used technologies
 
