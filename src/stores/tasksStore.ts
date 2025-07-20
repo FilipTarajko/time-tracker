@@ -3,6 +3,7 @@ import { computed, Ref, ref } from 'vue';
 import { supabase } from 'src/lib/supabaseClient';
 import { useEntriesStore } from 'stores/entriesStore';
 import { Notify } from 'quasar';
+import { indexedDb } from 'src/lib/indexedDb';
 
 const TASK_NESTING_INDICATOR = '::';
 const TASK_COLOR_OPACITY_HEX = '16';
@@ -17,6 +18,7 @@ export interface Task {
   color?: string;
   defaultDescription?: string;
   updated_at?: string;
+  is_deleted?: boolean;
 }
 
 // TODO: add actions and ui for editing tasks
@@ -146,9 +148,41 @@ export const useTasksStore = defineStore('tasks', () => {
     return findOrCreateTaskByFullOrPartialPath(fullOrPartialPathOrName);
   }
 
+  function getLastFullLoadTimestamp() {
+    return (
+      localStorage.getItem('last_tasks_full_load_timestamp') ??
+      new Date('1970-01-01').toISOString()
+    );
+  }
+
+  function setLastFullLoadTimestamp() {
+    localStorage.setItem(
+      'last_tasks_full_load_timestamp',
+      new Date().toISOString()
+    );
+  }
+
+  function clear() {
+    tasks.value = [];
+    localStorage.removeItem('last_tasks_full_load_timestamp');
+  }
+
   async function initFromSupabase() {
-    const { data } = await supabase.from('tasks').select();
-    tasks.value = data as Task[];
+    const prevFullLoadTimestamp = getLastFullLoadTimestamp();
+    setLastFullLoadTimestamp();
+    const { data } = await supabase
+      .from('tasks')
+      .select()
+      .gte('updated_at', prevFullLoadTimestamp);
+    await indexedDb.tasks.bulkPut(
+      (data as Task[]).filter((task) => !task.is_deleted)
+    );
+    await indexedDb.tasks.bulkDelete(
+      (data as Task[])
+        .filter((task) => task.is_deleted)
+        .map((task) => task.dbid)
+    );
+    tasks.value = await indexedDb.tasks.toArray();
   }
 
   function handleCurrentTaskChange(task: Task) {
@@ -167,6 +201,7 @@ export const useTasksStore = defineStore('tasks', () => {
 
     Notify.create({ message: 'Upserted tasks', type: 'positive' });
     task.dbid = data[0].dbid;
+    await indexedDb.tasks.put(data[0]);
   }
 
   function doesDependOn(checkedTask: Task, potentialAncestor: Task): boolean {
@@ -238,7 +273,7 @@ export const useTasksStore = defineStore('tasks', () => {
   async function deleteTask(task: Task) {
     const { data, error } = await supabase
       .from('tasks')
-      .delete()
+      .upsert({ ...task, is_deleted: true })
       .eq('dbid', task.dbid)
       .select();
 
@@ -248,6 +283,7 @@ export const useTasksStore = defineStore('tasks', () => {
     }
 
     Notify.create({ message: 'Deleted task', type: 'positive' });
+    await indexedDb.tasks.delete(data[0].dbid);
     tasks.value = tasks.value.filter((t) => t.dbid != data[0].dbid);
   }
 
@@ -335,5 +371,6 @@ export const useTasksStore = defineStore('tasks', () => {
     getNumberOfAncestors,
     highestNumberOfAncestors,
     mergeTask,
+    clear,
   };
 });

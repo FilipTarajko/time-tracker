@@ -1,17 +1,16 @@
 import { defineStore } from 'pinia';
 import { computed, Ref, ref } from 'vue';
-import { date } from 'quasar';
+import { date, Notify } from 'quasar';
 import { supabase } from 'src/lib/supabaseClient';
-
-import { Notify } from 'quasar';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { useSettingsStore } from 'stores/settingsStore';
 import {
-  MILLISECONDS_IN_MINUTE,
-  MILLISECONDS_IN_HOUR,
   MILLISECONDS_IN_DAY,
+  MILLISECONDS_IN_HOUR,
+  MILLISECONDS_IN_MINUTE,
   MINUTES_IN_HOUR,
 } from 'src/helpers/timeHelpers';
+import { indexedDb } from 'src/lib/indexedDb';
 
 export interface Entry {
   dbid?: string;
@@ -23,6 +22,7 @@ export interface Entry {
   date?: string;
   user_id?: string;
   updated_at?: string;
+  is_deleted?: boolean;
 }
 
 const settingsStore = useSettingsStore();
@@ -136,9 +136,41 @@ export const useEntriesStore = defineStore('entries', () => {
     upsertEntry(entry);
   }
 
+  function getLastFullLoadTimestamp() {
+    return (
+      localStorage.getItem('last_entries_full_load_timestamp') ??
+      new Date('1970-01-01').toISOString()
+    );
+  }
+
+  function setLastFullLoadTimestamp() {
+    localStorage.setItem(
+      'last_entries_full_load_timestamp',
+      new Date().toISOString()
+    );
+  }
+
+  function clear() {
+    entries.value = [];
+    localStorage.removeItem('last_entries_full_load_timestamp');
+  }
+
   async function initFromSupabase() {
-    const { data } = await supabase.from('entries').select();
-    entries.value = data as Entry[];
+    const prevFullLoadTimestamp = getLastFullLoadTimestamp();
+    setLastFullLoadTimestamp();
+    const { data } = await supabase
+      .from('entries')
+      .select()
+      .gte('updated_at', prevFullLoadTimestamp);
+    await indexedDb.entries.bulkPut(
+      (data as Entry[]).filter((entry) => !entry.is_deleted)
+    );
+    await indexedDb.entries.bulkDelete(
+      (data as Entry[])
+        .filter((entry) => entry.is_deleted)
+        .map((entry) => entry.dbid)
+    );
+    entries.value = await indexedDb.entries.toArray();
   }
 
   async function upsertEntry(entry: Entry) {
@@ -156,12 +188,13 @@ export const useEntriesStore = defineStore('entries', () => {
 
     Notify.create({ message: 'Upserted entry', type: 'positive' });
     entry.dbid = data[0].dbid;
+    await indexedDb.entries.put(data[0]);
   }
 
   async function deleteEntry(entry: Entry) {
     const { data, error } = await supabase
       .from('entries')
-      .delete()
+      .upsert({ ...entry, is_deleted: true })
       .eq('dbid', entry.dbid)
       .select();
 
@@ -171,6 +204,7 @@ export const useEntriesStore = defineStore('entries', () => {
     }
 
     Notify.create({ message: 'Deleted entry', type: 'positive' });
+    await indexedDb.entries.delete(data[0].dbid);
     entries.value = entries.value.filter((e) => e.dbid != data[0].dbid);
   }
 
@@ -227,5 +261,6 @@ export const useEntriesStore = defineStore('entries', () => {
     entryForDeletionConfirmation,
     doesEntryForDeletionConfirmationExist,
     changeTaskOfEntries,
+    clear,
   };
 });

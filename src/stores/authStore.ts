@@ -6,6 +6,7 @@ import { Notify } from 'quasar';
 import { Task, useTasksStore } from 'stores/tasksStore';
 import { Entry, useEntriesStore } from 'stores/entriesStore';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
+import { indexedDb } from 'src/lib/indexedDb';
 
 export const useAuthStore = defineStore('auth', () => {
   const currentUserEmail = ref('');
@@ -33,8 +34,10 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function clearOtherData() {
-    useEntriesStore().entries = [];
-    useTasksStore().tasks = [];
+    useEntriesStore().clear();
+    useTasksStore().clear();
+    indexedDb.entries.clear();
+    indexedDb.tasks.clear();
   }
 
   async function initFromSupabase() {
@@ -121,16 +124,13 @@ export const useAuthStore = defineStore('auth', () => {
           }
         });
 
+        if (changedEntry.is_deleted) {
+          entriesStore.entries = entriesStore.entries.filter((entry) => entry.id !== changedEntry.id);
+        }
+
         if (!replaced) {
           entriesStore.entries.unshift(changedEntry);
         }
-      }
-
-      if (change.eventType == EventTypes.DELETE) {
-        const removedEntry = change.old;
-        entriesStore.entries = entriesStore.entries.filter((entry: Entry) => {
-          return entry.dbid != removedEntry.dbid; // on DELETE, only dbid is sent
-        });
       }
     } else if (change.table == Tables.tasks) {
       const tasksStore = useTasksStore();
@@ -148,16 +148,13 @@ export const useAuthStore = defineStore('auth', () => {
           }
         });
 
+        if (changedTask.is_deleted) {
+          tasksStore.tasks = tasksStore.tasks.filter((task) => task.id !== changedTask.id);
+        }
+
         if (!replaced) {
           tasksStore.tasks.unshift(changedTask);
         }
-      }
-
-      if (change.eventType == EventTypes.DELETE) {
-        const removedTask = change.old;
-        tasksStore.tasks = tasksStore.tasks.filter((task: Task) => {
-          return task.dbid != removedTask.dbid; // on DELETE, only dbid is sent
-        });
       }
     } else {
       console.error(`received ${change} from unhandled table (${change.table})`);
