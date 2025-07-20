@@ -162,15 +162,9 @@ export const useEntriesStore = defineStore('entries', () => {
       .from('entries')
       .select()
       .gte('updated_at', prevFullLoadTimestamp);
-    // console.log((data as Entry[]).filter((entry) => !entry.is_deleted));
     await indexedDb.entries.bulkPut(
       (data as Entry[]).filter((entry) => !entry.is_deleted)
     );
-    // console.log(
-    //   (data as Entry[])
-    //     .filter((entry) => entry.is_deleted)
-    //     .map((entry) => entry.dbid)
-    // );
     await indexedDb.entries.bulkDelete(
       (data as Entry[])
         .filter((entry) => entry.is_deleted)

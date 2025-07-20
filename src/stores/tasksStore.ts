@@ -174,15 +174,9 @@ export const useTasksStore = defineStore('tasks', () => {
       .from('tasks')
       .select()
       .gte('updated_at', prevFullLoadTimestamp);
-    // console.log((data as Task[]).filter((task) => !task.is_deleted));
     await indexedDb.tasks.bulkPut(
       (data as Task[]).filter((task) => !task.is_deleted)
     );
-    // console.log(
-    //   (data as Task[])
-    //     .filter((task) => task.is_deleted)
-    //     .map((task) => task.dbid)
-    // );
     await indexedDb.tasks.bulkDelete(
       (data as Task[])
         .filter((task) => task.is_deleted)
