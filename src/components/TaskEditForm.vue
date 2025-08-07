@@ -90,7 +90,28 @@ watch(
       </template>
     </q-select>
     <q-color v-model="editedTask.color" class="my-picker" />
-    <q-input outlined v-model="editedTask.icon" label="icon" />
+    <q-input outlined v-model="editedTask.icon" label="icon">
+      <template v-slot:label>
+        <!-- TODO: add more info from or a link to https://quasar.dev/vue-components/icon#webfont-usage -->
+        <div class="row items-center all-pointer-events">
+          icon
+          <q-icon
+            class="q-ml-xs"
+            color="primary"
+            name="fa-regular fa-circle-question"
+          />
+          <q-tooltip anchor="top left" self="bottom left">
+            eg:
+            <br />
+            mdi-run
+            <br />
+            fa fa-dumbbell
+            <br />
+            book
+          </q-tooltip>
+        </div>
+      </template>
+    </q-input>
     <q-input outlined v-model="editedTask.imageSrc" label="image src" />
   </div>
   <div class="q-mt-md">before</div>
