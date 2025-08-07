@@ -7,6 +7,7 @@ import { indexedDb } from 'src/lib/indexedDb';
 
 const TASK_NESTING_INDICATOR = '::';
 const TASK_COLOR_OPACITY_HEX = '16';
+const TASK_DEFAULT_COLOR = '#aaaaaa';
 
 export interface Task {
   dbid?: string;
@@ -93,7 +94,7 @@ export const useTasksStore = defineStore('tasks', () => {
       id: crypto.randomUUID(),
       parentTaskId,
       name,
-      color: '#ffffff',
+      color: TASK_DEFAULT_COLOR,
     };
 
     tasks.value.push(newTask);
