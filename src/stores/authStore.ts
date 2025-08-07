@@ -113,6 +113,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       if ([EventTypes.INSERT, EventTypes.UPDATE].includes(eventType)) {
         const changedEntry = change.new as Entry;
+
+        if (changedEntry.is_deleted) {
+          entriesStore.entries = entriesStore.entries.filter((entry) => entry.id !== changedEntry.id);
+          return;
+        }
+
         let replaced = false;
 
         entriesStore.entries = entriesStore.entries.map((entry: Entry) => {
@@ -124,10 +130,6 @@ export const useAuthStore = defineStore('auth', () => {
           }
         });
 
-        if (changedEntry.is_deleted) {
-          entriesStore.entries = entriesStore.entries.filter((entry) => entry.id !== changedEntry.id);
-        }
-
         if (!replaced) {
           entriesStore.entries.unshift(changedEntry);
         }
@@ -137,6 +139,12 @@ export const useAuthStore = defineStore('auth', () => {
 
       if ([EventTypes.INSERT, EventTypes.UPDATE].includes(eventType)) {
         const changedTask = change.new as Task;
+
+        if (changedTask.is_deleted) {
+          tasksStore.tasks = tasksStore.tasks.filter((task) => task.id !== changedTask.id);
+          return;
+        }
+
         let replaced = false;
 
         tasksStore.tasks = tasksStore.tasks.map((task: Task) => {
@@ -147,10 +155,6 @@ export const useAuthStore = defineStore('auth', () => {
             return task;
           }
         });
-
-        if (changedTask.is_deleted) {
-          tasksStore.tasks = tasksStore.tasks.filter((task) => task.id !== changedTask.id);
-        }
 
         if (!replaced) {
           tasksStore.tasks.unshift(changedTask);
