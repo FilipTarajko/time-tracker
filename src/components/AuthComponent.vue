@@ -4,8 +4,8 @@ import { useAuthStore } from 'stores/authStore';
 
 const authStore = useAuthStore();
 
-const email = ref('a@a.a');
-const password = ref('abcdef');
+const email = ref('');
+const password = ref('');
 </script>
 
 <template>
@@ -15,8 +15,8 @@ const password = ref('abcdef');
       <q-btn color="warning" @click="authStore.logOut">log out</q-btn>
     </template>
     <template v-else>
-      <q-input outlined dense type="text" v-model="email" />
-      <q-input outlined dense type="text" v-model="password" />
+      <q-input outlined dense type="email" v-model="email" label="email" />
+      <q-input outlined dense type="password" v-model="password" label="password" />
       <q-btn color="primary" @click="authStore.logIn(email, password)"
         >log in
       </q-btn>
