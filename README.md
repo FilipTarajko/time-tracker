@@ -29,7 +29,7 @@ Main (entries) page
 ![Main (entries) page](public/readme%20screenshots/tracker-entries.png)
 
 Tasks page  
-![Tasks page(public/readme%20screenshots/tracker-tasks.png)
+![Tasks page](public/readme%20screenshots/tracker-tasks.png)
 
 Task editing page  
 ![Task editing page](public/readme%20screenshots/tracker-task-edit.png)
