@@ -13,7 +13,6 @@ defineProps<{
 const emit = defineEmits<{
   openTaskEditing: [];
 }>();
-
 </script>
 
 <template>
@@ -28,11 +27,18 @@ const emit = defineEmits<{
       <q-item-label @click="emit('openTaskEditing')"
         >{{ task.name }}
       </q-item-label>
-      <q-item-label v-if="task.parentTaskId" caption
-        >{{ tasksStore.generateLabel(task) }}
+      <q-item-label
+        v-if="task.parentTaskId"
+        style="overflow: clip; text-overflow: ellipsis"
+        caption
+      >
+        <q-tooltip anchor="top left" self="bottom left">
+          {{ tasksStore.generateLabel(task) }}
+        </q-tooltip>
+        {{ tasksStore.generateLabel(task) }}
       </q-item-label>
       <q-item-label v-if="settingsStore.displayUpdatedAt">
-        {{task.updated_at}}
+        {{ task.updated_at }}
       </q-item-label>
     </q-item-section>
   </div>
