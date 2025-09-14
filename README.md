@@ -25,11 +25,11 @@ Time-tracking tool for measuring time spent on tasks that can be nested with arb
 
 ## Screenshots
 
-Main (entries) page
-![tracker-entries.png](public/readme%20screenshots/tracker-entries.png)
+Main (entries) page  
+![Main (entries) page](public/readme%20screenshots/tracker-entries.png)
 
-Tasks page
-![tracker-tasks.png](public/readme%20screenshots/tracker-tasks.png)
+Tasks page  
+![Tasks page(public/readme%20screenshots/tracker-tasks.png)
 
-Task editing page
-![tracker-task-edit.png](public/readme%20screenshots/tracker-task-edit.png)
+Task editing page  
+![Task editing page](public/readme%20screenshots/tracker-task-edit.png)
