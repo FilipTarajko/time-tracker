@@ -12,17 +12,6 @@ Time-tracking tool for measuring time spent on tasks that can be nested with arb
   - in case of database changes after initial load, state on other currently-connected devices will be updated over WebSockets
   - only changes are transferred over the network - data of tasks and entries that weren't modified since last initial load are already saved in the browser's IndexedDB
 
-## Screenshots
-
-Main (entries) page
-![tracker-entries.png](public/readme%20screenshots/tracker-entries.png)
-
-Tasks page
-![tracker-tasks.png](public/readme%20screenshots/tracker-tasks.png)
-
-Task editing page
-![tracker-task-edit.png](public/readme%20screenshots/tracker-task-edit.png)
-
 ## Used technologies
 
 [<img align="left" width="26" height="26" alt="Vue.js" src="https://api.iconify.design/devicon:vuejs.svg" style="padding: 0 20px 16px 0">](https://vuejs.org "Vue.js")
@@ -33,3 +22,14 @@ Task editing page
 [<img align="left" width="26" height="26" alt="TypeScript" src="https://api.iconify.design/devicon:typescript.svg" style="padding: 0 20px 16px 0">](https://www.typescriptlang.org "TypeScript")
 [<img align="left" width="26" height="26" alt="JavaScript" src="https://api.iconify.design/devicon:javascript.svg" style="padding: 0 20px 16px 0">](https://en.wikipedia.org/wiki/JavaScript "JavaScript")
 [<img width="26" height="26" alt="GitHub Actions" src="https://api.iconify.design/devicon:githubactions.svg" style="padding: 0 20px 16px 0">](https://github.com/features/actions "GitHub Actions")
+
+## Screenshots
+
+Main (entries) page
+![tracker-entries.png](public/readme%20screenshots/tracker-entries.png)
+
+Tasks page
+![tracker-tasks.png](public/readme%20screenshots/tracker-tasks.png)
+
+Task editing page
+![tracker-task-edit.png](public/readme%20screenshots/tracker-task-edit.png)
