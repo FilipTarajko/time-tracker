@@ -127,7 +127,7 @@ function doesTaskHaveEntriesOrAncestors(task: Task) {
         </div>
       </template>
 
-      <div style="text-align: center; width: 100%">delete</div>
+      <div style="text-align: center; width: 100%">delete or merge</div>
       <template v-for="task in tasksToDisplay" :key="task.id">
         <div
           :style="`width: calc(100% - ${

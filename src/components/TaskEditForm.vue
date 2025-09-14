@@ -52,6 +52,7 @@ watch(
   <div style="display: flex; flex-direction: column; gap: 8px">
     <q-input outlined v-model="editedTask.name" label="name" />
     <q-select
+      label="parent task"
       clearable
       v-model="editedTask.parentTaskId"
       :option-label="

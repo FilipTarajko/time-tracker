@@ -6,7 +6,7 @@
       style="
         gap: 2px;
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       "
     >
       <div
