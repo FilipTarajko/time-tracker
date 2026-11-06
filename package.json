@@ -6,10 +6,11 @@
   "author": "ft <filiptarajko@gmail.com>",
   "private": true,
   "scripts": {
-    "lint": "eslint --ext .js,.ts,.vue ./",
+    "lint": "eslint ./",
     "format": "prettier --write \"**/*.{js,ts,vue,scss,html,md,json}\" --ignore-path .gitignore",
-    "test": "echo \"No test specified\" && exit 0",
+    "test": "vitest --run",
     "test:unit": "vitest",
+    "test:unit:ci": "vitest --run",
     "dev": "quasar dev",
     "build": "quasar build",
     "deploy": "vercel"
@@ -22,29 +23,31 @@
     "dexie": "^4.0.11",
     "pinia": "^2.0.11",
     "quasar": "^2.16.0",
-    "vitest": "^3.1.1",
     "vue": "^3.4.18",
-    "vue-i18n": "^9.2.2",
+    "vue-i18n": "^11.4.18",
     "vue-router": "^4.0.12"
   },
   "devDependencies": {
-    "@intlify/vite-plugin-vue-i18n": "^3.3.1",
-    "@quasar/app-vite": "^1.9.0",
-    "@types/node": "^20.14.8",
-    "@typescript-eslint/eslint-plugin": "^7.16.0",
-    "@typescript-eslint/parser": "^7.16.0",
+    "@eslint/js": "^10.0.1",
+    "@intlify/unplugin-vue-i18n": "^11.2.8",
+    "@quasar/app-vite": "^2.6.2",
+    "@types/node": "^26.6.6",
     "autoprefixer": "^10.4.2",
-    "eslint": "^8.57.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-vue": "^9.0.0",
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-vue": "^10.12.0",
+    "globals": "^17.14.0",
     "prettier": "^2.5.1",
-    "typescript": "~5.5.4",
-    "vite-plugin-checker": "^0.8.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.5",
+    "vite-plugin-checker": "^0.14.5",
+    "vitest": "^5.1.0",
     "vue-tsc": "^2.0.29"
   },
   "engines": {
-    "node": "^20 || ^18 || ^16",
-    "npm": ">= 6.13.4",
-    "yarn": ">= 1.21.1"
-  }
+    "node": "26.x",
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@12.17.0"
 }
