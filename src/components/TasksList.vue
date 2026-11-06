@@ -2,8 +2,10 @@
 import { Task, useTasksStore } from 'stores/tasksStore';
 import TaskDisplay from 'components/TaskDisplay.vue';
 import { useEntriesStore } from 'stores/entriesStore';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import { formatDuration } from 'src/helpers/timeHelpers';
+import { useSettingsStore } from 'stores/settingsStore';
+import SettingsAreLocalInfo from 'components/SettingsAreLocalInfo.vue';
 
 const tasksStore = useTasksStore();
 const entriesStore = useEntriesStore();
@@ -14,8 +16,7 @@ const props = defineProps<{
 
 const MARGIN_PIXELS_PER_NESTING_LEVEL = 12;
 
-const displayByHierarchy = ref(true);
-const displayTotalTimes = ref(true);
+const settingsStore = useSettingsStore();
 
 const tasksToDisplay = computed(() => {
   const result = tasksStore.tasks.filter(
@@ -24,7 +25,7 @@ const tasksToDisplay = computed(() => {
       t.parentTaskId === props.filterByParentTask.id
   );
 
-  if (displayByHierarchy.value) {
+  if (settingsStore.displayTasksByHierarchy) {
     result.sort((task1: Task, task2: Task) =>
       tasksStore.generateLabel(task1) > tasksStore.generateLabel(task2) ? 1 : -1
     );
@@ -34,7 +35,7 @@ const tasksToDisplay = computed(() => {
 });
 
 const currentMarginPixelsPerNestingLevel = computed(() =>
-  displayByHierarchy.value && !props.filterByParentTask
+  settingsStore.displayTasksByHierarchy && !props.filterByParentTask
     ? MARGIN_PIXELS_PER_NESTING_LEVEL
     : 0
 );
@@ -90,10 +91,15 @@ function doesTaskHaveEntriesOrAncestors(task: Task) {
 
 <template>
   <div>
+    <SettingsAreLocalInfo />
     <div style="width: fit-content; margin: auto auto 20px">
-      <q-toggle v-model="displayByHierarchy">display by hierarchy</q-toggle>
+      <q-toggle v-model="settingsStore.displayTasksByHierarchy"
+        >display by hierarchy</q-toggle
+      >
       <br />
-      <q-toggle v-model="displayTotalTimes">display total times</q-toggle>
+      <q-toggle v-model="settingsStore.displayTasksTotalTimes"
+        >display total times</q-toggle
+      >
     </div>
     <div
       class="q-mt-md"
@@ -105,7 +111,9 @@ function doesTaskHaveEntriesOrAncestors(task: Task) {
         margin-left: 36px;
       "
       :style="`
-        grid-template-columns: repeat(${4 + (displayTotalTimes ? 2 : 0)}, auto);
+        grid-template-columns: repeat(${
+          4 + (settingsStore.displayTasksTotalTimes ? 2 : 0)
+        }, auto);
         margin-left: ${
           tasksStore.highestNumberOfAncestors *
           currentMarginPixelsPerNestingLevel
@@ -114,7 +122,7 @@ function doesTaskHaveEntriesOrAncestors(task: Task) {
       <div style="text-align: center; width: 100%">task</div>
       <div style="text-align: center; width: 100%">entries</div>
       <div style="text-align: center; width: 100%">child tasks</div>
-      <template v-if="displayTotalTimes">
+      <template v-if="settingsStore.displayTasksTotalTimes">
         <div style="text-align: center; width: 100%">
           total time
           <br />
@@ -183,7 +191,7 @@ function doesTaskHaveEntriesOrAncestors(task: Task) {
             ).length
           }}
         </q-btn>
-        <template v-if="displayTotalTimes">
+        <template v-if="settingsStore.displayTasksTotalTimes">
           <div
             style="justify-self: center; align-self: center"
             :style="{ color: doesTaskHaveOngoingEntry(task) ? 'red' : '' }"

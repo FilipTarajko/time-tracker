@@ -5,12 +5,13 @@ Time-tracking tool for measuring time spent on tasks that can be nested with arb
 ## Features and core ideas
 
 - time is measured using entries, each of which can be assigned a start time, an end time, a task and a description
-- each task can be nested in another task and assigned a color and icon
-- all data available to a user is loaded into the browser, so that - after initial load - all data is always immediately available
+- each task can be nested in another task and assigned a color and an icon
+- all data available to the user is loaded into the browser, so that - after initial load - all data is always immediately available
   - filtering, browsing, and analysis of all tasks and entries without any additional network requests
   - immediate tasks autocomplete suggestions for all your tasks
   - in case of database changes after initial load, state on other currently-connected devices will be updated over WebSockets
   - only changes are transferred over the network - data of tasks and entries that weren't modified since last initial load are already saved in the browser's IndexedDB
+- settings are only kept locally, allowing to customize them separately for each browser/device
 
 ## Used technologies
 
@@ -25,11 +26,11 @@ Time-tracking tool for measuring time spent on tasks that can be nested with arb
 
 ## Screenshots
 
-Main (entries) page  
+Main (entries) page
 ![Main (entries) page](public/readme%20screenshots/tracker-entries.png)
 
-Tasks page  
+Tasks page
 ![Tasks page](public/readme%20screenshots/tracker-tasks.png)
 
-Task editing page  
+Task editing page
 ![Task editing page](public/readme%20screenshots/tracker-task-edit.png)

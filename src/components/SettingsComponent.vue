@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { useSettingsStore } from 'stores/settingsStore';
+import SettingsAreLocalInfo from 'components/SettingsAreLocalInfo.vue';
 
 const settingsStore = useSettingsStore();
 </script>
 
 <template>
-  <div class="column q-my-lg q-mx-auto" style="max-width: 300px">
+  <div class="column q-mx-auto" style="max-width: 300px">
+    <SettingsAreLocalInfo/>
     Settings
     <q-input
       label="day end offset (hours after midnight)"
