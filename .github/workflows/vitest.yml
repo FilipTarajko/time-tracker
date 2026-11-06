@@ -15,4 +15,5 @@ jobs:
           node-version: 26
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm quasar prepare
       - run: pnpm test:unit --run
